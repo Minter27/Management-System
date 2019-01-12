@@ -48,10 +48,10 @@ def index():
 def login():
   # Forget any user_id
   session.clear()
-
+  
   # User reached route via POST (as by submitting a form via POST)
   if request.method == "POST":
-
+    print("yuclke")
     username = request.form.get("username")
     password = request.form.get("password")
 

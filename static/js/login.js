@@ -7,5 +7,15 @@ $(document).ready(() => {
         event.stopPropagation();
       })
     }
+    else {
+      $.ajax({
+        method: "POST",
+        url: "/login",
+        data: {
+          username: $("#username").value,
+          password: $("#password").value
+        }
+      })
+    }
   })
 })
