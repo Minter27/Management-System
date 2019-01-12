@@ -1,0 +1,19 @@
+form {
+  position: center;
+  text-align: center;
+  margin-top : 18%;
+  margin-right: 33%;
+  margin-left: 33%;
+}
+.btn {
+  margin-top: 8%;
+}
+.form-signin-heading {
+  margin-bottom: 8%;
+}
+input {
+  margin-bottom: 3%;
+}
+label {
+  margin-left: 75%;
+}

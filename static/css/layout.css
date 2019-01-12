@@ -1,0 +1,12 @@
+.alert.alert-primary.border.text-center
+{
+    margin-top: 73px;
+}
+.headtext {
+  font-size: larger;
+}
+.nav-login {
+  font-size: larger;
+  margin-bottom: 1%; 
+  margin-right: 73%;
+}
