@@ -1,6 +1,6 @@
 $(document).ready(() => {
   $("#submit").click(() => {
-    if ($("#username").value === '' || $("#password").value === '') {
+    if ($("#username").val() === '' || $("#password").val() === '') {
       alert("You have to have a username!")
       $("form").submit((event) => {
         event.preventDefault();
@@ -8,13 +8,15 @@ $(document).ready(() => {
       })
     }
     else {
-      $.ajax({
-        method: "POST",
-        url: "/login",
-        data: {
-          username: $("#username").value,
-          password: $("#password").value
-        }
+      const para = { 
+        username: $("#username").val(), 
+        password: $("#password").val() 
+      }
+      $.post("/login", para, (data) => {
+        if (data[0] === '/')
+          window.location.replace(data)
+        else
+          alert(data)
       })
     }
   })

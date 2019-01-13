@@ -27,10 +27,10 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 # Ensure responses aren't cached
 @app.after_request
 def after_request(response):
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Expires"] = 0
-    response.headers["Pragma"] = "no-cache"
-    return response
+  response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+  response.headers["Expires"] = 0
+  response.headers["Pragma"] = "no-cache"
+  return response
 
 
 # Configure session to use filesystem (instead of signed cookies)
@@ -51,20 +51,18 @@ def login():
   
   # User reached route via POST (as by submitting a form via POST)
   if request.method == "POST":
-    print("yuclke")
     username = request.form.get("username")
     password = request.form.get("password")
+    print(username, password)
+    query = db.execute("SELECT * FROM users WHERE username = (?)", [username]).fetchone()
+    print(query)
+    if not query or not check_password_hash(query[2], password):
+      return "كلمة السر او اسم المستخدم خاطئ"
 
-    query = db.execute("SELECT * FROM users WHERE username = (?)", [username])
-
-    if (not check_password_hash(query[2], password)):
-      flash("Passowrd and/or username aren't correct")
-      return redirect("/")
-
-      # Remember which user has logged in
+    # Remember which user has logged in
     session["user_id"] = query[0]
 
     # Redirect user to home page
-    return redirect("/")
+    return "/"
   else:
     return render_template("login.html")
