@@ -71,11 +71,70 @@ def login():
 def transaction():
   #transactionIdQ = db.execute("SELECT MAX(transactionId) FROM transactions").fetchone()
   if request.method == "POST":
-    #sad
-    something = 2
-  else:
-    return render_template("transactionForm.html", transactionId=1)
+    transactionId = int(request.form.get('transactionId'))
+    clientId = int(request.form.get('clientId'))
+    clientName = str(request.form.get('clientName'))
+    itemId = int(request.form.get('itemId'))
+    weight = float(request.form.get('weight'))
+    descreption = str(request.form.get('descreption'))
+    price = float(request.form.get('price'))
+    total = float(request.form.get('total'))
+    paid = float(request.form.get('paid'))
 
+    if False or '' in (transactionId, clientId, clientName, itemId, weight, price, total):
+      return "الرجاء التأكد من تعبئة النموذج كاملاً"
+
+    if clientId == 1 and paid == 0:
+      return "لا يمكن عد الدفع عندما يكون الدفع نقدي"
+    
+    # Under questioning
+    total -= paid
+    if total < 0:
+      return "لا يمكن دفع اكثر من المبلغ المطلوب. اذا اردت الايداع ، الرجاء الاستعانة بخاصية حركة مالية"
+    
+
+    currTime = datetime.now().strftime("%Y-%m-%d")
+    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight, descreption, price, total, paid, date)"
+              + "VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?))", 
+              [transactionId, clientId, itemId, weight, descreption, price, total, paid, currTime])
+    db.commit()
+
+    currBalance = db.execute("SELECT client_balance FROM clients WHERE clientId =(?)", [clientId]).fetchone()[0]
+    currBalance -= total
+    db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = (?)", [currBalance, clientId])
+    db.commit()
+
+    currStock = db.execute("SELECT item_stock FROM inventory WHERE itemId = (?)", [itemId]).fetchone()[0]
+    currStock -= weight
+    db.execute("UPDATE inventory SET item_stock = (?) WHERE itemId = (?)", [currStock, itemId])
+    db.commit()
+
+    return "/transaction"
+  else:
+    transactionId = db.execute("SELECT transactionId FROM transactions ORDER BY transactionId DESC LIMIT 1").fetchone()[0]
+    return render_template("transactionForm.html", transactionId=(transactionId + 1))
+
+@app.route("/transactionLog", methods=["GET"])
+@login_required
+def transactionLog():
+  transactions = []
+  query = db.execute("SELECT * FROM transactions ORDER BY transactionId DESC").fetchall()
+  for record in query:
+    print(record)
+    itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
+    transactions.append({ 
+      'transactionId': record[0], 
+      'clientId': record[1],
+      'itemName': itemNameQuery[0],
+      'weight': record[3],
+      'descreption': record[4],
+      'price': record[5],
+      'total': record[6],
+      'paid': record[7],
+      'date': record[8]  
+    })
+  print(transactions)
+  return render_template('transactionLog.html', transactions=transactions)
 
 # Info gathering routes
 @app.route("/getClients")

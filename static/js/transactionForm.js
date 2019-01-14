@@ -1,21 +1,22 @@
 $(document).ready(() => {
   $("#clientId").change(() => {
-    $(`option[value=${$("#clientId").val()}`).attr('selected', 'selected')
+    $('#clientName option:selected').removeAttr('selected')
+    $(`#clientName option[value=${$("#clientId").val()}]`).attr('selected', 'selected')
   })
 
   const itemsArr = ["حديد مشكل", "حديد 10", "حديد 8", "اسمنت", "اسمنت ابيض اردني", "اسمنت ابيض اجنبي",
   "شيد", "سلك ناعم", "سلك مجدول", "مسامير عادي", "مسامير باطون", "كانات", "اسافين", "ستوك اردتي",
   "ستوك اجنبي"]
   for (let i in itemsArr){
-    $("#itemName").append(
-      `<option value=${i+1}>${itemsArr[i]}</option>`
+    $("#item").append(
+      `<option value=${parseInt(i, 10) + 1}>${itemsArr[i]}</option>`
     )
   }
 
   $.getJSON('/getClients', null, (data) => {
     for (let client in data.clientArr){
       $("#clientName").append(
-        `<option value=${parseInt(client+1, 10)}>${data.clientArr[client]}</option>`
+        `<option value=${parseInt(client, 10) + 1}>${data.clientArr[client]}</option>`
       )
     }
   })
@@ -26,9 +27,33 @@ $(document).ready(() => {
     $("#clientId").val(valueSelected)
   })
 
-  $("#next").click(() => {
-    //TODO
+  $('#weight').on('change', () => {
+    $('#total').val($('#price').val() * $('#weight').val())
   })
+  $('#price').on('change', () => {
+    $('#total').val($('#weight').val() * $('#price').val())
+  })
+
+  $("#next").click(() => {
+    const para = {
+      transactionId: $('#transactionId').val(),
+      clientId: $('#clientId').val(),
+      clientName: $('#clientName option:selected').val(),
+      itemId: $('#item option:selected').val(),
+      weight: $('#weight').val(),
+      descreption: $('#descreption').val(),
+      price: $('#price').val(),
+      total: $('#total').val(),
+      paid: $('#paid').val(),
+    }
+    console.log(para)
+   $.post('/transaction', para, (data) => {
+      if (data[0] === "/")
+        window.location.replace(data)
+      else
+        alert(data)
+   })
+})
 
   $("#clear").click(() => {
     const transactionId = $('#transactionId').val()
