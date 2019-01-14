@@ -53,9 +53,7 @@ def login():
   if request.method == "POST":
     username = request.form.get("username")
     password = request.form.get("password")
-    print(username, password)
     query = db.execute("SELECT * FROM users WHERE username = (?)", [username]).fetchone()
-    print(query)
     if not query or not check_password_hash(query[2], password):
       return "كلمة السر او اسم المستخدم خاطئ"
 
@@ -66,3 +64,21 @@ def login():
     return "/"
   else:
     return render_template("login.html")
+
+
+@app.route("/transaction", methods=["GET", "POST"])
+@login_required
+def transaction():
+  #transactionIdQ = db.execute("SELECT MAX(transactionId) FROM transactions").fetchone()
+  if request.method == "POST":
+    #sad
+    something = 2
+  else:
+    return render_template("transactionForm.html", transactionId=1)
+
+
+# Info gathering routes
+@app.route("/getClients")
+def getClientId():
+  query = db.execute("SELECT client_name FROM clients ORDER BY clientId").fetchall()
+  return jsonify( { 'clientArr': list(query) } )
