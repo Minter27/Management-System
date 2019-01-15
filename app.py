@@ -69,28 +69,26 @@ def login():
 @app.route("/transaction", methods=["GET", "POST"])
 @login_required
 def transaction():
-  #transactionIdQ = db.execute("SELECT MAX(transactionId) FROM transactions").fetchone()
   if request.method == "POST":
-    transactionId = int(request.form.get('transactionId'))
-    clientId = int(request.form.get('clientId'))
-    clientName = str(request.form.get('clientName'))
-    itemId = int(request.form.get('itemId'))
-    weight = float(request.form.get('weight'))
-    descreption = str(request.form.get('descreption'))
-    price = float(request.form.get('price'))
-    total = float(request.form.get('total'))
-    paid = float(request.form.get('paid'))
+    try:
+      transactionId = int(request.form.get('transactionId'))
+      clientId = int(request.form.get('clientId'))
+      clientName = str(request.form.get('clientName'))
+      itemId = int(request.form.get('itemId'))
+      weight = float(request.form.get('weight'))
+      descreption = str(request.form.get('descreption'))
+      price = float(request.form.get('price'))
+      total = float(request.form.get('total'))
+      paid = float(request.form.get('paid'))
+    except:
+      return "الرجاء التأكد من تعبئة النموذج كاملاً"
 
     if False or '' in (transactionId, clientId, clientName, itemId, weight, price, total):
       return "الرجاء التأكد من تعبئة النموذج كاملاً"
 
     if clientId == 1 and paid == 0:
-      return "لا يمكن عد الدفع عندما يكون الدفع نقدي"
+      return "لا يمكن دفع ذمم عندما يكون الدفع نقدي"
     
-    # Under questioning
-    total -= paid
-    if total < 0:
-      return "لا يمكن دفع اكثر من المبلغ المطلوب. اذا اردت الايداع ، الرجاء الاستعانة بخاصية حركة مالية"
     
 
     currTime = datetime.now().strftime("%Y-%m-%d")
@@ -98,6 +96,10 @@ def transaction():
               + "VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?))", 
               [transactionId, clientId, itemId, weight, descreption, price, total, paid, currTime])
     db.commit()
+    
+    total -= paid
+    if total < 0:
+      return "لا يمكن دفع اكثر من المبلغ المطلوب. اذا اردت الايداع ، الرجاء الاستعانة بخاصية حركة مالية"
 
     currBalance = db.execute("SELECT client_balance FROM clients WHERE clientId =(?)", [clientId]).fetchone()[0]
     currBalance -= total
@@ -133,8 +135,7 @@ def transactionLog():
       'paid': record[7],
       'date': record[8]  
     })
-  print(transactions)
-  return render_template('transactionLog.html', transactions=transactions)
+  return render_template('transactionLog.html', transactions=transactions, dateNow=datetime.now().strftime("%Y-%m-%d"))
 
 # Info gathering routes
 @app.route("/getClients")

@@ -1,5 +1,30 @@
-table {
+form {
+  text-align: right;
+  margin-right: 12px;
+}
+input {
+  text-align: right;
+}
+.center-table {
+  margin-top: 2%;
+  margin-right: 2%;
+  margin-left: 1%;
+}
+.row {
   margin-top: 8%;
-  margin-right: 3%;
-  margin-left: 20%;
+  margin-left: 2px;
+}
+.head-text {
+  margin-top: 2%;
+  margin-left: 59%;
+  font-size: 50px;
+}
+.date-label {
+  margin-left: 57%;
+  font-size: 20px;
+}
+button#search {
+  margin-top: 32.5px;
+  padding-right: 20px;
+  padding-left: 20px; 
 }
