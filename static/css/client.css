@@ -1,0 +1,13 @@
+.client-info {
+  margin-top: 8%;
+  margin-right: 2%;
+  margin-left: 2%;
+}
+form, input {
+  text-align: right;
+}
+.center-table {
+  margin-top: 2%;
+  margin-right: 2%;
+  margin-left: 1%;
+}

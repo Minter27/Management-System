@@ -1,5 +1,5 @@
 # Header files (Import all needed libraries)
-from flask import Flask, render_template, redirect, request, session, jsonify, flash, abort
+from flask import Flask, render_template, redirect, request, session, jsonify, flash, g
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
@@ -92,9 +92,10 @@ def transaction():
     
 
     currTime = datetime.now().strftime("%Y-%m-%d")
-    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight, descreption, price, total, paid, date)"
-              + "VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?))", 
-              [transactionId, clientId, itemId, weight, descreption, price, total, paid, currTime])
+    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
+              + "descreption, price, total, paid, typeId, typeName, date)"
+              + "VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))", 
+              [transactionId, clientId, itemId, weight, descreption, price, total, paid, "S", "بيع", currTime])
     db.commit()
     
     total -= paid
@@ -119,23 +120,136 @@ def transaction():
 @app.route("/transactionLog", methods=["GET"])
 @login_required
 def transactionLog():
-  transactions = []
-  query = db.execute("SELECT * FROM transactions ORDER BY transactionId DESC").fetchall()
+  dateStart = request.args.get('start')
+  dateEnd = request.args.get('end')
+  if not dateStart and not dateEnd:
+    transactions = []
+    query = db.execute("SELECT * FROM transactions ORDER BY transactionId DESC").fetchall()
+    for record in query:
+      print(record)
+      itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
+      transactions.append({ 
+        'transactionId': record[0], 
+        'clientId': record[1],
+        'itemName': itemNameQuery[0],
+        'weight': record[3],
+        'descreption': record[4],
+        'price': record[5],
+        'total': record[6],
+        'paid': record[7],
+        'type': record[9],
+        'date': record[10]  
+      })
+    return render_template('transactionLog.html', transactions=transactions, dateNow=datetime.now().strftime("%Y-%m-%d"))
+  else:
+    transactions = []
+    query = db.execute("SELECT * FROM transactions WHERE date >= (?) AND date <= (?) ORDER BY transactionId DESC",
+      [dateStart, dateEnd]).fetchall()
+    if not query:
+      return "لا يوجد حركات بهذه الفترة"
+    for record in query:
+      print(record)
+      itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
+      transactions.append({ 
+        'transactionId': record[0], 
+        'clientId': record[1],
+        'itemName': itemNameQuery[0],
+        'weight': record[3],
+        'descreption': record[4],
+        'price': record[5],
+        'total': record[6],
+        'paid': record[7],
+        'type': record[9],
+        'date': record[10]  
+      })
+      print(transactions)
+    return jsonify({ 'transactions': transactions }) 
+
+
+@app.route("/clients", methods=["GET"])
+@login_required
+def clients():
+  clients = []
+  query = db.execute('SELECT * FROM clients ORDER BY clientId').fetchall()
   for record in query:
-    print(record)
-    itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
-    transactions.append({ 
-      'transactionId': record[0], 
-      'clientId': record[1],
-      'itemName': itemNameQuery[0],
-      'weight': record[3],
-      'descreption': record[4],
-      'price': record[5],
-      'total': record[6],
-      'paid': record[7],
-      'date': record[8]  
+    clients.append({
+      'id': record[0],
+      'name': record[1],
+      'phone': record[2],
+      'balance': record[3]
     })
-  return render_template('transactionLog.html', transactions=transactions, dateNow=datetime.now().strftime("%Y-%m-%d"))
+  return render_template('clients.html', clients=clients)
+
+@app.route("/u/<clientId>")
+@login_required
+def client(clientId):
+  clientId = int(clientId)
+  print(clientId)
+  if clientId:
+    clientQ = db.execute("SELECT * FROM clients WHERE clientId = (?)", [clientId]).fetchone()
+    client = {
+      'id': clientQ[0],
+      'name': clientQ[1], # problem on this line, jinja not rendering the full name
+      'phone': clientQ[2],
+      'balance': clientQ[3]
+    }
+    transactions = []
+    transactionQ = db.execute("SELECT * FROM transactions WHERE clientId = (?) ORDER BY transactionId", [clientId]).fetchall()
+    for record in transactionQ:
+      itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
+      transactions.append({
+        'transactionId': record[0], 
+        'itemName': itemNameQuery[0],
+        'weight': record[3],
+        'descreption': record[4],
+        'price': record[5],
+        'total': record[6],
+        'paid': record[7],
+        'type': record[9],
+        'date': record[10]  
+      })
+  return render_template('client.html', client=client, transactions=transactions)
+
+
+@app.route("/addItems", methods=["GET", "POST"])
+@login_required
+def addItems():
+  if request.method == "POST":
+    try:
+      transactionId = int(request.form.get('transactionId'))
+      itemId = int(request.form.get('itemId'))
+      itemPrice = float(request.form.get('itemPrice'))
+      itemStock = float(request.form.get('itemStock'))
+      total = float(request.form.get('total'))
+    except:
+      return "الرجاء التأكد من تعبئة النموذج كاملاً"
+    
+
+    if None in (itemId, itemPrice, itemStock):
+      return "تأكد من تعبة النموذج كاملاً"
+    
+    stock = db.execute("SELECT item_stock FROM inventory WHERE itemId = (?)",[itemId]).fetchone()[0]
+    stock += itemStock
+    db.execute("UPDATE inventory SET item_stock = (?) WHERE itemId = (?)", [stock, itemId])
+    db.commit()
+
+    currTime = datetime.now().strftime("%Y-%m-%d")
+    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
+              + "descreption, price, total, paid, typeId, typeName, date)"
+              + "VALUES ((?), 1, (?), (?), '', (?), (?), (?), (?), (?), (?))", 
+              [transactionId, itemId, itemStock, itemPrice, total, total, "B", "شراء", currTime])
+    db.commit()
+
+    balance = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
+    balance -= total
+    db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [balance])
+    db.commit()
+
+    return "/addItems"
+  else:
+    transactionId = db.execute("SELECT transactionId FROM transactions ORDER BY transactionId DESC LIMIT 1").fetchone()[0]
+    return render_template("addItems.html", transactionId=(transactionId+1))
+
 
 # Info gathering routes
 @app.route("/getClients")

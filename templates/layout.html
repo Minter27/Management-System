@@ -11,9 +11,6 @@
     <link href="/static/bootstrap/css/bootstrap-reboot.css" rel="stylesheet">
     <link href="/static/bootstrap/css/bootstrap-grid.css" rel="stylesheet">
     <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <!-- <link href="/static/bootstrap/bootstrap-reboot.css.map" rel="stylesheet">
-    <link href="/static/bootstrap/bootstrap-grid.css.map" rel="stylesheet">
-    <link href="/static/bootstrap/bootstrap.css.map" rel="stylesheet"> -->
 
     <link href="/static/css/layout.css" rel="stylesheet">
 
@@ -28,14 +25,16 @@
       <a class="navbar-brand" href="/"><p class="headtext">الايوب لمواد البناء</p></a>
         {% if session.user_id %}
           <ul class="navbar-nav mr-auto mt-2">
-              <li class="nav-item"><a class="nav-link" href="/"><p class="font-weight-light"><strong>الصفحة الرئيسية</strong></p></a></li>
-              <li class="nav-item"><a class="nav-link" href="/transaction"><p class="font-weight-light"><strong>ادخال حركة</strong></p></a></li>
+              <li class="nav-item"><a class="nav-link" href="/transaction"><p class="font-weight-light"><strong>حركة بيع</strong></p></a></li>
+              <li class="nav-item"><a class="nav-link" href="/addItems"><p class="font-weight-light"><strong> حركة شراء</strong></p></a></li>
               <li class="nav-item"><a class="nav-link" href="/transactionLog"><p class="font-weight-light"><strong>سجل الحركات</strong></p></a></li>
-              <li class="nav-item"><a class="nav-link" href="/sell"><p class="font-weight-light"><strong>Sell A Book</strong></p></a></li>
-              <li class="nav-item"><a class="nav-link" href="/send"><p class="font-weight-light"><strong>Send</strong></p></a></li>
+              <li class="nav-item"><a class="nav-link" href="/clients"><p class="font-weight-light"><strong>العملاء</strong></p></a></li>
+              <li class="nav-item"><a class="nav-link" href="/repayDebt"><p class="font-weight-light"><strong>سداد ذمم</strong></p></a></li>
+              <li class="nav-item"><a class="nav-link" href="/expense"><p class="font-weight-light"><strong>حركة نفقات</strong></p></a></li>
+              <li class="nav-item"><a class="nav-link" href="/inventory"><p class="font-weight-light"><strong>المستودع</strong></p></a></li>
           </ul>
           <ul class="navbar-nav ml-auto mt-2">
-              <li class="nav-item"><a class="nav-link" href="/logout"><p class="font-weight-light"><strong>Log Out</strong></p></a></li>
+              <li class="nav-item"><a class="nav-link" href="/logout"><p class="font-weight-light"><strong>تسجيل الخروج</strong></p></a></li>
           </ul>
       {% else %}
           <ul class="navbar-nav ml-auto mt-2 nav-login">

@@ -41,6 +41,7 @@
           <th scope="col">السعر</th>
           <th scope="col">المجموع</th>
           <th scope="col">المدفوع</th>
+          <th scope="col">نوع الحركة</th>
           <th scope="col">التاريخ</th>
         </tr>
       </thead>
@@ -55,6 +56,7 @@
             <td>{{ transaction.price }}</td>
             <td>{{ transaction.total }}</td>
             <td>{{ transaction.paid }}</td>
+            <td>{{ transaction.type }}</td>
             <td>{{ transaction.date }}</td>
           </tr>
         {% endfor %}
