@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block head %}
+  <link href="/static/css/inventory.css" rel="stylesheet">
+  <script src="/static/js/inventory.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+  <div class="head-text">
+    <p>الـمـسـتـودع</p>
+  </div>
+  <div class="center-table">
+    <table class="table table-bordered">
+      <thead class="text-right">
+        <tr>
+          <th scope="col">رقم الصنف</th>
+          <th scope="col">الصنف</th>
+          <th scope="col">الموجودات</th>
+        </tr>
+      </thead>
+      <tbody class="text-right">
+        {% for item in items %}
+          <tr>
+            <th scope="row">{{ item.id }}</th>
+            <td>{{ item.name }}</td>
+            <td>{{ item.stock }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

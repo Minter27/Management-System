@@ -89,7 +89,8 @@ def transaction():
     if clientId == 1 and paid == 0:
       return "لا يمكن دفع ذمم عندما يكون الدفع نقدي"
     
-    
+    if total - paid < 0:
+      return "لا يمكن دفع اكثر من المبلغ المطلوب. اذا اردت الايداع ، الرجاء الاستعانة بخاصية حركة مالية"
 
     currTime = datetime.now().strftime("%Y-%m-%d")
     db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
@@ -97,10 +98,12 @@ def transaction():
               + "VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))", 
               [transactionId, clientId, itemId, weight, descreption, price, total, paid, "S", "بيع", currTime])
     db.commit()
+
+    db.execute("INSERT INTO cash (transactionId, clientId, amount, typeId, type_name, date)"
+              + "VALUES ((?), (?), (?), (?), (?), (?))", [transactionId, clientId, paid, "S", "بيع", currTime])
+    db.commit()
     
     total -= paid
-    if total < 0:
-      return "لا يمكن دفع اكثر من المبلغ المطلوب. اذا اردت الايداع ، الرجاء الاستعانة بخاصية حركة مالية"
 
     currBalance = db.execute("SELECT client_balance FROM clients WHERE clientId =(?)", [clientId]).fetchone()[0]
     currBalance -= total
@@ -185,6 +188,9 @@ def clients():
 def client(clientId):
   clientId = int(clientId)
   print(clientId)
+  if clientId == 1:
+    return redirect("/cash")
+  
   if clientId:
     clientQ = db.execute("SELECT * FROM clients WHERE clientId = (?)", [clientId]).fetchone()
     client = {
@@ -240,6 +246,11 @@ def addItems():
               [transactionId, itemId, itemStock, itemPrice, total, total, "B", "شراء", currTime])
     db.commit()
 
+    db.execute("INSERT INTO cash (transactionId, clientId, amount, typeId, type_name, date)"
+              + "VALUES ((?), 1, (?), (?), (?), (?))", [transactionId, -total, "B", "شراء", currTime])
+    db.commit()
+
+
     balance = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
     balance -= total
     db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [balance])
@@ -249,6 +260,69 @@ def addItems():
   else:
     transactionId = db.execute("SELECT transactionId FROM transactions ORDER BY transactionId DESC LIMIT 1").fetchone()[0]
     return render_template("addItems.html", transactionId=(transactionId+1))
+
+
+@app.route('/repayDebt', methods=["GET", "POST"])
+@login_required
+def repayDebt():
+  if request.method == "POST":
+    try:
+      transactionId = int(request.form.get('transactionId'))
+      clientId = int(request.form.get('clientId'))
+      amount = float(request.form.get('amount'))
+    except:
+      return "الرجاء التأكد من تعبئة النموذج صحيحاَ"
+
+    if None or False in (transactionId, clientId, amount):
+      return "الرجاء التأكد من تعبئة النموذج صحيحاَ"
+
+
+    currTime = datetime.now().strftime("%Y-%m-%d")
+    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
+              + "descreption, price, total, paid, typeId, typeName, date)"
+              + "VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))", 
+              [transactionId, clientId, itemId, weight, descreption, price, total, paid, "R", "سداد ذمم", currTime])
+    db.commit()
+
+
+    clientCash = db.execute("SELECT client_balance FROM clients WHERE clientId = (?)", [clientId]).fetchone()[0]
+    clientCash += amount
+
+    cash = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
+    cash += amount
+  else:
+    transactionId = db.execute("SELECT transactionId FROM transactions ORDER BY transactionId DESC LIMIT 1").fetchone()[0]
+    return render_template('repayDebt.html', transactionId=(transactionId+1))
+
+
+@app.route("/cash")
+@login_required
+def cash():
+  transactions = []
+  query = db.execute("SELECT * FROM cash ORDER BY transactionId DESC").fetchall()
+  for record in query:
+    transactions.append({
+      'id': record[0],
+      'clientId': record[1],
+      'amount': record[2],
+      'descreption': str("حركة " + str(record[4]) +  " بيد عميل رقم " + "(" +str(record[1]) + ")" + " حركة رقم " + "(" + str(record[0]) + ")"),
+      'type': record[4],
+      'date': record[5]
+    })
+  return render_template('cash.html', transactions=transactions)
+
+@app.route("/inventory")
+@login_required
+def inventory():
+  items = []
+  query = db.execute("SELECT * FROM inventory ORDER BY itemId").fetchall()
+  for record in query:
+    items.append({
+      'id': record[0],
+      'name': record[1],
+      'stock': record[2]
+    })
+  return render_template('inventory.html', items=items)
 
 
 # Info gathering routes

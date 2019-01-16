@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block head %}
+  <link href="/static/css/cash.css" rel="stylesheet">
+  <script src="/static/js/cash.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+  <div class="head-text">
+    <p>سـجـل الـحـركـات الـنـقـديـة</p>
+  </div>
+  <div class="center-table">
+    <table class="table table-bordered">
+      <thead class="text-right">
+        <tr>
+          <th scope="col">رقم الحركة</th>
+          <th scope="col">رقم العميل</th>
+          <th scope="col">المبلغ</th>
+          <th scope="col">البيان</th>
+          <th scope="col">النوع</th>
+          <th scope="col">التاريخ</th>
+        </tr>
+      </thead>
+      <tbody class="text-right">
+        {% for transaction in transactions %}
+          <tr>
+            <th scope="row">{{ transaction.id }}</th>
+            <td>{{ transaction.clientId }}</td>
+            <td>{{ transaction.amount }}</td>
+            <td>{{ transaction.descreption }}</td>
+            <td>{{ transaction.type }}</td>
+            <td>{{ transaction.date }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

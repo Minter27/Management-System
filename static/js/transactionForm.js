@@ -1,3 +1,7 @@
+const round = (number) => {
+  return (Math.floor(number * 1000) / 1000)
+}
+
 $(document).ready(() => {
   $("#clientId").change(() => {
     $('#clientName option:selected').removeAttr('selected')
@@ -28,10 +32,10 @@ $(document).ready(() => {
   })
 
   $('#weight').on('change', () => {
-    $('#total').val($('#price').val() * $('#weight').val())
+    $('#total').val(round($('#price').val() * $('#weight').val()))
   })
   $('#price').on('change', () => {
-    $('#total').val($('#weight').val() * $('#price').val())
+    $('#total').val(round($('#weight').val() * $('#price').val()))
   })
 
   $("#next").click(() => {

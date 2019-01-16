@@ -15,7 +15,7 @@
         </div>
         <div class="form-group col-md-3">
           <label for="itemId">رقم الصنف</label>
-          <input class="form-control" type="number" name="itemId" id="itemId" />
+          <input class="form-control" type="number" name="itemId" id="itemId" min="1"/>
         </div>
         <div class="form-group col-md-6">
           <label for="itemName">الصنف</label>
@@ -27,18 +27,19 @@
       <div class="form-row">
         <div class="form-group col-md-4">
           <label for="itemStock">الكمية</label>
-          <input class="form-control" type="number" name="itemStock" id="itemStock" step="0.001" />
+          <input class="form-control" type="number" name="itemStock" id="itemStock" step="0.001" min="0.005"/>
         </div>
         <div class="form-group col-md-4">
           <label for="itemPrice">السعر</label>
-          <input class="form-control" type="number" name="itemPrice" id="itemPrice" step="0.001" />
+          <input class="form-control" type="number" name="itemPrice" id="itemPrice" step="0.001" min="0.005"/>
         </div>
         <div class="form-group col-md-4">
           <label for="total">المجموع</label>
           <input class="form-control" type="text" name="total" id="total" disabled/>
         </div>
       </div>
-      <button class="btn btn-primary" type="button" id="submit">اضافة</button>
+      <button class="btn btn-primary" type="submit" id="next">حركة جديدة</button>
+      <button class="btn btn-primary" type="button" id="clear">مسح</button>
     </form>
   </div>
 {% endblock %}

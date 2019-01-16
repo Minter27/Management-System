@@ -1,10 +1,14 @@
+const round = (number) => {
+  return (Math.floor(number * 1000) / 1000)
+}
+
 $(document).ready(() => {
   const itemsArr = ["حديد مشكل", "حديد 10", "حديد 8", "اسمنت", "اسمنت ابيض اردني", "اسمنت ابيض اجنبي",
   "شيد", "سلك ناعم", "سلك مجدول", "مسامير عادي", "مسامير باطون", "كانات", "اسافين", "ستوك اردتي",
   "ستوك اجنبي"]
-  for (let item of itemsArr){
+  for (let i in itemsArr){
     $("#itemName").append(
-      `<option>${item}</option>`
+      `<option value=${parseInt(i, 10) + 1}>${itemsArr[i]}</option>`
     )
   }
 
@@ -20,19 +24,19 @@ $(document).ready(() => {
   })
 
   $('#itemStock').on('change', () => {
-    $('#total').val($('#itemPrice').val() * $('#itemStock').val())
+    $('#total').val(round($('#itemPrice').val() * $('#itemStock').val()))
   })
   $('#itemPrice').on('change', () => {
-    $('#total').val($('#itemStock').val() * $('#itemPrice').val())
+    $('#total').val(round($('#itemStock').val() * $('#itemPrice').val()))
   })
 
-  $('#submit').click(() => {
+  $('#next').click(() => {
     const para = {
       transactionId: $('#transactionId').val(),
       itemId: $('#itemId').val(),
-      total: $('#total').val(),
       itemPrice: $('#itemPrice').val(),
-      itemStock: $('#itemStock').val()
+      itemStock: $('#itemStock').val(),
+      total: $('#total').val(),
     }
     console.log(para)
     if ( para.itemStock === 0 || para.itemPrice === 0){
@@ -46,5 +50,13 @@ $(document).ready(() => {
           alert(data)
       })
     }
+  })
+
+  $("#clear").click(() => {
+    const transactionId = $('#transactionId').val()
+    $('input').val('')
+    $('option').removeAttr('selected')
+    $('#stdoption').attr('selected', 'selected')
+    $('#transactionId').val(transactionId)
   })
 })
