@@ -278,18 +278,27 @@ def repayDebt():
 
 
     currTime = datetime.now().strftime("%Y-%m-%d")
-    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
-              + "descreption, price, total, paid, typeId, typeName, date)"
-              + "VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))", 
-              [transactionId, clientId, itemId, weight, descreption, price, total, paid, "R", "سداد ذمم", currTime])
+    db.execute("INSERT INTO transactions (transactionId, clientId, paid, typeId, typeName, date)"
+              + "VALUES ((?), (?), (?), (?), (?), (?))", 
+              [transactionId, clientId, amount, "R", "سداد ذمم", currTime])
+    db.commit()
+
+    db.execute("INSERT INTO cash (transactionId, clientId, amount, typeId, type_name, date)"
+              + "VALUES ((?), (?), (?), (?), (?), (?))", [transactionId, clientId, amount, "R", "سداد ذمم", currTime])
     db.commit()
 
 
     clientCash = db.execute("SELECT client_balance FROM clients WHERE clientId = (?)", [clientId]).fetchone()[0]
     clientCash += amount
+    db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = (?)", [clientCash, clientId])
+    db.commit()
 
     cash = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
     cash += amount
+    db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [cash])
+    db.commit()
+
+    return "/repayDebt"
   else:
     transactionId = db.execute("SELECT transactionId FROM transactions ORDER BY transactionId DESC LIMIT 1").fetchone()[0]
     return render_template('repayDebt.html', transactionId=(transactionId+1))
@@ -310,6 +319,16 @@ def cash():
       'date': record[5]
     })
   return render_template('cash.html', transactions=transactions)
+
+
+@app.route("/expense", methods=["GET", "POST"])
+@login_required
+def expense():
+  if request.method == "POST":
+    soemor = 2
+  else:
+    transactionId = db.execute("SELECT transactionId FROM transactions ORDER BY transactionId DESC LIMIT 1").fetchone()[0]
+    return render_template('expense.html', transactionId=transactionId)
 
 @app.route("/inventory")
 @login_required

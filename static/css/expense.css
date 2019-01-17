@@ -1,0 +1,12 @@
+.center-form {
+  position: center;
+  text-align: right;
+  margin-top : 18%;
+  margin-right: 20%;
+  margin-left: 20%;
+}
+button#next {
+  margin-top: 32px;
+  margin-bottom: 17px;
+  margin-right: 5px;
+}
