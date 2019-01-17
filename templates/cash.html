@@ -6,8 +6,20 @@
 {% endblock %}
 
 {% block body %}
-  <div class="head-text">
-    <p>سـجـل الـحـركـات الـنـقـديـة</p>
+  <div class="main row">
+    <div class="col-md-10">
+      <div class="head-text">
+        <p>سـجـل الـحـركـات الـنـقـديـة</p>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="row">
+        <p>المجموع: {{ stats.total }}</p>
+      </div>
+      <div class="row">
+        <p>الرصيد: {{ stats.balance }}</p>
+      </div>
+    </div>
   </div>
   <div class="center-table">
     <table class="table table-bordered">

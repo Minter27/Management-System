@@ -6,6 +6,6 @@ items = ["حديد مشكل", "حديد 10", "حديد 8", "اسمنت", "اسم
   "شيد", "سلك ناعم", "سلك مجدول", "مسامير عادي", "مسامير باطون", "كانات", "اسافين", "ستوك اردتي",
   "ستوك اجنبي"]
 
-for index, item in enumerate(items):
-  db.execute("INSERT INTO inventory (itemId, item_name, item_stock) VALUES ((?), (?), 0)",[(index + 1), item])
-  db.commit()
+s = db.execute("SELECT * FROM transactions WHERE transactionId = 9").fetchall()
+for r in s:
+  print(r)

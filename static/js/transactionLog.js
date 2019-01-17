@@ -21,6 +21,7 @@ $(document).ready(() => {
             <td>${transaction.price}</td>
             <td>${transaction.total}</td>
             <td>${transaction.paid}</td>
+            <td>${transaction.type}</td>
             <td>${transaction.date}</td>
           </tr>`
         )

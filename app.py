@@ -134,7 +134,7 @@ def transactionLog():
       transactions.append({ 
         'transactionId': record[0], 
         'clientId': record[1],
-        'itemName': itemNameQuery[0],
+        'itemName': itemNameQuery[0] if itemNameQuery else "",
         'weight': record[3],
         'descreption': record[4],
         'price': record[5],
@@ -156,7 +156,7 @@ def transactionLog():
       transactions.append({ 
         'transactionId': record[0], 
         'clientId': record[1],
-        'itemName': itemNameQuery[0],
+        'itemName': itemNameQuery[0] if itemNameQuery else "",
         'weight': record[3],
         'descreption': record[4],
         'price': record[5],
@@ -278,8 +278,9 @@ def repayDebt():
 
 
     currTime = datetime.now().strftime("%Y-%m-%d")
-    db.execute("INSERT INTO transactions (transactionId, clientId, paid, typeId, typeName, date)"
-              + "VALUES ((?), (?), (?), (?), (?), (?))", 
+    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
+              + "descreption, price, total, paid, typeId, typeName, date)"
+              + "VALUES ((?), (?), '', '', '', '', '', (?), (?), (?), (?))", 
               [transactionId, clientId, amount, "R", "سداد ذمم", currTime])
     db.commit()
 
@@ -307,9 +308,14 @@ def repayDebt():
 @app.route("/cash")
 @login_required
 def cash():
+  stats = {
+    'total': 0,
+    'balance': db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
+  }
   transactions = []
   query = db.execute("SELECT * FROM cash ORDER BY transactionId DESC").fetchall()
   for record in query:
+    stats['total'] += record[2]
     transactions.append({
       'id': record[0],
       'clientId': record[1],
@@ -318,17 +324,43 @@ def cash():
       'type': record[4],
       'date': record[5]
     })
-  return render_template('cash.html', transactions=transactions)
+  return render_template('cash.html', transactions=transactions, stats=stats)
 
 
 @app.route("/expense", methods=["GET", "POST"])
 @login_required
 def expense():
   if request.method == "POST":
-    soemor = 2
+    try:
+      transactionId = int(request.form.get('transactionId'))
+      descreption = str(request.form.get('descreption'))
+      amount = float(request.form.get('amount'))
+    except:
+      return "الرجاء التأكد من تعبئة النموذج صحيحاَ"
+
+    if None or False in (transactionId, descreption, amount):
+      return "الرجاء التأكد من تعبئة النموذج صحيحاَ"
+
+    currTime = datetime.now().strftime("%Y-%m-%d")
+    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
+              + "descreption, price, total, paid, typeId, typeName, date)"
+              + "VALUES ((?), 1, '', '', (?), '', '', (?), (?), (?), (?))", 
+              [transactionId, descreption, amount, "E", "مصروفات", currTime])
+    db.commit()
+
+    db.execute("INSERT INTO cash (transactionId, clientId, amount, typeId, type_name, date)"
+              + "VALUES ((?), 1, (?), (?), (?), (?))", [transactionId, -amount, "E", "مصروفات", currTime])
+    db.commit()
+
+    cash = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
+    cash -= amount
+    db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [cash])
+    db.commit()
+
+    return "/expense"
   else:
     transactionId = db.execute("SELECT transactionId FROM transactions ORDER BY transactionId DESC LIMIT 1").fetchone()[0]
-    return render_template('expense.html', transactionId=transactionId)
+    return render_template('expense.html', transactionId=(transactionId+1))
 
 @app.route("/inventory")
 @login_required
