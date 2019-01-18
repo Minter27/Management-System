@@ -166,18 +166,41 @@ def transactionLog():
     return jsonify({ 'transactions': transactions }) 
 
 
-@app.route("/clients", methods=["GET"])
+@app.route("/clients", methods=["GET", "POST"])
 def clients():
-  clients = []
-  query = db.execute('SELECT * FROM clients ORDER BY clientId').fetchall()
-  for record in query:
-    clients.append({
-      'id': record[0],
-      'name': record[1],
-      'phone': record[2],
-      'balance': record[3]
-    })
-  return render_template('clients.html', clients=clients)
+  if request.method == "POST":
+    try:
+      id = int(request.form.get("id"))
+      name = str(request.form.get("name"))
+      phone = str(request.form.get("phone"))
+      balance = float(request.form.get("balance"))
+      print(id, name, phone, balance)
+    except:
+      return "الرجاء التأكد من تعبئة النموذج كاملاً"
+
+    if (None or False in (id, name, phone)) or (len(name) < 3) or (len(phone) != 10 or not re.search(r"[0-9]{10}?", phone)):
+      return "الرجاء التأكد من تعبئة النموذج كاملاً"
+
+    if balance < 0:
+      return "لا يمكن ان يكون رصيد بداية المدة سالب ، اذا لم يقم العميل بالدفع و يريد الشراء ، يتم تسجيل الحركة ذمم"
+
+    db.execute("INSERT INTO clients (clientId, client_name, client_phone, client_balance)"
+              + "VALUES ((?), (?), (?), (?))", [id, name, phone, balance])
+    db.commit()
+
+    return "/clients"
+
+  else:
+    clients = []
+    query = db.execute('SELECT * FROM clients ORDER BY clientId').fetchall()
+    for record in query:
+      clients.append({
+        'id': record[0],
+        'name': record[1],
+        'phone': record[2],
+        'balance': record[3]
+      })
+    return render_template('clients.html', clients=clients)
 
 @app.route("/u/<clientId>")
 def client(clientId):

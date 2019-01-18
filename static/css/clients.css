@@ -1,6 +1,8 @@
-.head-text {
+.row {
   margin-top: 8%;
-  margin-left: 75%;
+}
+.head-text {
+  margin-left: 69%;
   font-size: 60px;
 }
 table {
@@ -10,4 +12,24 @@ table {
   margin-top: 2%;
   margin-right: 2%;
   margin-left: 1%;
+}
+.modal, form, input {
+  text-align: right;
+}
+.new-client {
+  margin-left: 70%;
+  margin-top: 18%;
+  padding: 5.5%;
+}
+label {
+  margin-left: 5px;
+  margin-top: 8px;
+  font-size: 18px;
+}
+input {
+  text-align: right;
+  margin: 5px;
+}
+button {
+  margin: 2px;
 }

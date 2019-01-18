@@ -2,13 +2,21 @@
 
 {% block head %}
   <link href="/static/css/clients.css" rel="stylesheet">
-  <!-- <script src="/static/js/clients.js" type="text/javascript"></script> -->
+  <script src="/static/js/clients.js" type="text/javascript"></script>
 {% endblock %}
 
 {% block body %}
-  <div class="head-text">
-    <p>سـجـل الـعـمـلاء</p>
+  <div class="row">
+    <div class="col-md-10">
+      <p class="head-text">سـجـل الـعـمـلاء</p>
+    </div>
+    <div class="col-md-2">
+      <button type="button" class="btn btn-primary new-client" data-toggle="modal" data-target="#modal">
+        اضافة عميل جديد
+      </button>
+    </div>
   </div>
+
   <div class="center-table">
     <table class="table table-bordered">
       <thead class="text-right">
@@ -30,5 +38,39 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+
+  <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal-label">اضافة عميل</h5>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="input-group">
+              <label for="clientId">&nbsp;رقم العميل</label>
+              <input type="text" class="form-control" id="clientId" name="clientId" value={{ clients[-1].id+1 }} disabled/>
+            </div>
+            <div class="input-group">
+              <label for="clientName">&nbsp;اسم العميل</label>
+              <input type="text" class="form-control" id="clientName" name="clientName" />
+            </div>
+            <div class="input-group">
+              <label for="clientPhone">رقم الهاتف</label>
+              <input type="text" class="form-control" id="clientPhone" name="clientPhone" />
+            </div>
+            <div class="input-group">
+              <label for="clientBalance">الرصيد&nbsp;&nbsp;&nbsp;&nbsp;</label>
+              <input type="number" class="form-control" id="clientBalance" name="clientBalance" step="0.005" value="0.0"/>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">اغلاق</button>
+          <button type="button" class="btn btn-primary" id="add">اضافة</button>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock %}
