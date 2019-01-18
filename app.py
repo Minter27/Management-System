@@ -205,7 +205,7 @@ def client(clientId):
       itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
       transactions.append({
         'transactionId': record[0], 
-        'itemName': itemNameQuery[0],
+        'itemName': itemNameQuery[0] if itemNameQuery else "",
         'weight': record[3],
         'descreption': record[4],
         'price': record[5],
