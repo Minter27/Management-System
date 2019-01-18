@@ -40,7 +40,6 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 @app.route("/")
-@login_required
 def index():
   return render_template("index.html")
 
@@ -67,7 +66,6 @@ def login():
 
 
 @app.route("/transaction", methods=["GET", "POST"])
-@login_required
 def transaction():
   if request.method == "POST":
     try:
@@ -121,7 +119,6 @@ def transaction():
     return render_template("transactionForm.html", transactionId=(transactionId + 1))
 
 @app.route("/transactionLog", methods=["GET"])
-@login_required
 def transactionLog():
   dateStart = request.args.get('start')
   dateEnd = request.args.get('end')
@@ -170,7 +167,6 @@ def transactionLog():
 
 
 @app.route("/clients", methods=["GET"])
-@login_required
 def clients():
   clients = []
   query = db.execute('SELECT * FROM clients ORDER BY clientId').fetchall()
@@ -184,7 +180,6 @@ def clients():
   return render_template('clients.html', clients=clients)
 
 @app.route("/u/<clientId>")
-@login_required
 def client(clientId):
   clientId = int(clientId)
   print(clientId)
@@ -218,7 +213,6 @@ def client(clientId):
 
 
 @app.route("/addItems", methods=["GET", "POST"])
-@login_required
 def addItems():
   if request.method == "POST":
     try:
@@ -263,7 +257,6 @@ def addItems():
 
 
 @app.route('/repayDebt', methods=["GET", "POST"])
-@login_required
 def repayDebt():
   if request.method == "POST":
     try:
@@ -306,7 +299,6 @@ def repayDebt():
 
 
 @app.route("/cash")
-@login_required
 def cash():
   stats = {
     'total': 0,
@@ -328,7 +320,6 @@ def cash():
 
 
 @app.route("/expense", methods=["GET", "POST"])
-@login_required
 def expense():
   if request.method == "POST":
     try:
@@ -363,7 +354,6 @@ def expense():
     return render_template('expense.html', transactionId=(transactionId+1))
 
 @app.route("/inventory")
-@login_required
 def inventory():
   items = []
   query = db.execute("SELECT * FROM inventory ORDER BY itemId").fetchall()

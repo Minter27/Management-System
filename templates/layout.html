@@ -23,7 +23,6 @@
   <body>
     <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark pull-right">
       <a class="navbar-brand" href="/"><p class="headtext">الايوب لمواد البناء</p></a>
-        {% if session.user_id %}
           <ul class="navbar-nav mr-auto mt-2">
               <li class="nav-item"><a class="nav-link" href="/transaction"><p class="font-weight-light"><strong>حركة بيع</strong></p></a></li>
               <li class="nav-item"><a class="nav-link" href="/addItems"><p class="font-weight-light"><strong> حركة شراء</strong></p></a></li>
@@ -34,13 +33,8 @@
               <li class="nav-item"><a class="nav-link" href="/inventory"><p class="font-weight-light"><strong>المستودع</strong></p></a></li>
           </ul>
           <ul class="navbar-nav ml-auto mt-2">
-              <li class="nav-item"><a class="nav-link" href="/logout"><p class="font-weight-light"><strong>تسجيل الخروج</strong></p></a></li>
+              <li class="nav-item"><a class="nav-link" href="/logout"><p class="font-weight-light"><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></p></a></li>
           </ul>
-      {% else %}
-          <ul class="navbar-nav ml-auto mt-2 nav-login">
-              <li class="nav-item"><a class="nav-link" href="/login">تسجيل الدخول</a></li>
-          </ul>
-      {% endif %}
     </nav>
 
     {% if get_flashed_messages() %}
