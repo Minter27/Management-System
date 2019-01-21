@@ -1,5 +1,5 @@
 # Header files (Import all needed libraries)
-from flask import Flask, render_template, redirect, request, session, jsonify, flash, g
+from flask import Flask, render_template, redirect, request, session, jsonify
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
@@ -8,12 +8,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import login_required
 
 from datetime import datetime
-from random import randint
 from sqlite3 import connect
 
 import re
-import time
-import os
 
 # Configure flask app
 app = Flask(__name__)
@@ -42,27 +39,6 @@ Session(app)
 @app.route("/")
 def index():
   return render_template("index.html")
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-  # Forget any user_id
-  session.clear()
-  
-  # User reached route via POST (as by submitting a form via POST)
-  if request.method == "POST":
-    username = request.form.get("username")
-    password = request.form.get("password")
-    query = db.execute("SELECT * FROM users WHERE username = (?)", [username]).fetchone()
-    if not query or not check_password_hash(query[2], password):
-      return "كلمة السر او اسم المستخدم خاطئ"
-
-    # Remember which user has logged in
-    session["user_id"] = query[0]
-
-    # Redirect user to home page
-    return "/"
-  else:
-    return render_template("login.html")
 
 
 @app.route("/transaction", methods=["GET", "POST"])
