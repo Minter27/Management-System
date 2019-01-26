@@ -7,14 +7,23 @@
 
 {% block body %}
   <div class="main row">
-    <div class="col-md-10">
+    <div class="col-md-6">
       <div class="head-text">
-        <p>سـجـل الـحـركـات الـنـقـديـة</p>
+        <p>سـجـل الـحـركـات المالية</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <span class="transactionType">نوع الحركة</span>
+      <div class="row">
+        <button class="btn btn-secondary" value="S">بيع</button>
+        <button class="btn btn-secondary" value="B">شراء</button>
+        <button class="btn btn-secondary" value="R">سداد ذمم</button>
+        <button class="btn btn-secondary" value="E">نفقات</button>
       </div>
     </div>
     <div class="col-md-2">
       <div class="row">
-        <p>المجموع: {{ stats.total }}</p>
+        <p id="total">المجموع: {{ stats.total }}</p>
       </div>
       <div class="row">
         <p>الرصيد: {{ stats.balance }}</p>

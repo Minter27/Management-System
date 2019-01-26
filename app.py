@@ -62,21 +62,21 @@ def transaction():
 
     if clientId == 1 and paid == 0:
       return "لا يمكن دفع ذمم عندما يكون الدفع نقدي"
-    
+
     if total - paid < 0:
       return "لا يمكن دفع اكثر من المبلغ المطلوب. اذا اردت الايداع ، الرجاء الاستعانة بخاصية حركة مالية"
 
     currTime = datetime.now().strftime("%Y-%m-%d")
-    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
+    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight,"
               + "descreption, price, total, paid, typeId, typeName, date)"
-              + "VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))", 
+              + "VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
               [transactionId, clientId, itemId, weight, descreption, price, total, paid, "S", "بيع", currTime])
     db.commit()
 
     db.execute("INSERT INTO cash (transactionId, clientId, amount, typeId, type_name, date)"
               + "VALUES ((?), (?), (?), (?), (?), (?))", [transactionId, clientId, paid, "S", "بيع", currTime])
     db.commit()
-    
+
     total -= paid
 
     currBalance = db.execute("SELECT client_balance FROM clients WHERE clientId =(?)", [clientId]).fetchone()[0]
@@ -104,8 +104,8 @@ def transactionLog():
     for record in query:
       print(record)
       itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
-      transactions.append({ 
-        'transactionId': record[0], 
+      transactions.append({
+        'transactionId': record[0],
         'clientId': record[1],
         'itemName': itemNameQuery[0] if itemNameQuery else "",
         'weight': record[3],
@@ -114,7 +114,7 @@ def transactionLog():
         'total': record[6],
         'paid': record[7],
         'type': record[9],
-        'date': record[10]  
+        'date': record[10]
       })
     return render_template('transactionLog.html', transactions=transactions, dateNow=datetime.now().strftime("%Y-%m-%d"))
   else:
@@ -126,8 +126,8 @@ def transactionLog():
     for record in query:
       print(record)
       itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
-      transactions.append({ 
-        'transactionId': record[0], 
+      transactions.append({
+        'transactionId': record[0],
         'clientId': record[1],
         'itemName': itemNameQuery[0] if itemNameQuery else "",
         'weight': record[3],
@@ -136,10 +136,10 @@ def transactionLog():
         'total': record[6],
         'paid': record[7],
         'type': record[9],
-        'date': record[10]  
+        'date': record[10]
       })
       print(transactions)
-    return jsonify({ 'transactions': transactions }) 
+    return jsonify({ 'transactions': transactions })
 
 
 @app.route("/clients", methods=["GET", "POST"])
@@ -154,11 +154,8 @@ def clients():
     except:
       return "الرجاء التأكد من تعبئة النموذج كاملاً"
 
-    if (None or False in (id, name, phone)) or (len(name) < 3) or (len(phone) != 10 or not re.search(r"[0-9]{10}?", phone)):
+    if (None in (id, name, phone)) or (len(name) < 3):
       return "الرجاء التأكد من تعبئة النموذج كاملاً"
-
-    if balance < 0:
-      return "لا يمكن ان يكون رصيد بداية المدة سالب ، اذا لم يقم العميل بالدفع و يريد الشراء ، يتم تسجيل الحركة ذمم"
 
     db.execute("INSERT INTO clients (clientId, client_name, client_phone, client_balance)"
               + "VALUES ((?), (?), (?), (?))", [id, name, phone, balance])
@@ -184,7 +181,7 @@ def client(clientId):
   print(clientId)
   if clientId == 1:
     return redirect("/cash")
-  
+
   if clientId:
     clientQ = db.execute("SELECT * FROM clients WHERE clientId = (?)", [clientId]).fetchone()
     client = {
@@ -198,7 +195,7 @@ def client(clientId):
     for record in transactionQ:
       itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
       transactions.append({
-        'transactionId': record[0], 
+        'transactionId': record[0],
         'itemName': itemNameQuery[0] if itemNameQuery else "",
         'weight': record[3],
         'descreption': record[4],
@@ -206,7 +203,7 @@ def client(clientId):
         'total': record[6],
         'paid': record[7],
         'type': record[9],
-        'date': record[10]  
+        'date': record[10]
       })
   return render_template('client.html', client=client, transactions=transactions)
 
@@ -222,20 +219,20 @@ def addItems():
       total = float(request.form.get('total'))
     except:
       return "الرجاء التأكد من تعبئة النموذج كاملاً"
-    
+
 
     if None in (itemId, itemPrice, itemStock):
       return "تأكد من تعبة النموذج كاملاً"
-    
+
     stock = db.execute("SELECT item_stock FROM inventory WHERE itemId = (?)",[itemId]).fetchone()[0]
     stock += itemStock
     db.execute("UPDATE inventory SET item_stock = (?) WHERE itemId = (?)", [stock, itemId])
     db.commit()
 
     currTime = datetime.now().strftime("%Y-%m-%d")
-    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
+    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight,"
               + "descreption, price, total, paid, typeId, typeName, date)"
-              + "VALUES ((?), 1, (?), (?), '', (?), (?), (?), (?), (?), (?))", 
+              + "VALUES ((?), 1, (?), (?), '', (?), (?), (?), (?), (?), (?))",
               [transactionId, itemId, itemStock, itemPrice, total, total, "B", "شراء", currTime])
     db.commit()
 
@@ -270,9 +267,9 @@ def repayDebt():
 
 
     currTime = datetime.now().strftime("%Y-%m-%d")
-    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
+    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight,"
               + "descreption, price, total, paid, typeId, typeName, date)"
-              + "VALUES ((?), (?), '', '', '', '', '', (?), (?), (?), (?))", 
+              + "VALUES ((?), (?), '', '', '', '', '', (?), (?), (?), (?))",
               [transactionId, clientId, amount, "R", "سداد ذمم", currTime])
     db.commit()
 
@@ -332,9 +329,9 @@ def expense():
       return "الرجاء التأكد من تعبئة النموذج صحيحاَ"
 
     currTime = datetime.now().strftime("%Y-%m-%d")
-    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight," 
+    db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight,"
               + "descreption, price, total, paid, typeId, typeName, date)"
-              + "VALUES ((?), 1, '', '', (?), '', '', (?), (?), (?), (?))", 
+              + "VALUES ((?), 1, '', '', (?), '', '', (?), (?), (?), (?))",
               [transactionId, descreption, amount, "E", "مصروفات", currTime])
     db.commit()
 
@@ -370,3 +367,18 @@ def inventory():
 def getClientId():
   query = db.execute("SELECT client_name FROM clients ORDER BY clientId").fetchall()
   return jsonify( { 'clientArr': list(query) } )
+
+@app.route("/getTransactionsByType")
+def getTransactionsByType():
+  transactions = []
+  query = db.execute("SELECT * FROM cash WHERE typeId = (?)", [request.args.get('typeId')]).fetchall()
+  for record in query:
+    transactions.append({
+      'id': record[0],
+      'clientId': record[1],
+      'amount': record[2],
+      'descreption': str("حركة " + str(record[4]) +  " بيد عميل رقم " + "(" +str(record[1]) + ")" + " حركة رقم " + "(" + str(record[0]) + ")"),
+      'type': record[4],
+      'date': record[5]
+    })
+  return jsonify(transactions)
