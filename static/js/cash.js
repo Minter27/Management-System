@@ -1,12 +1,11 @@
 $(document).ready(() => {
-  $("button").click(function() {
-    $("button").removeClass('btn-primary').addClass('btn-secondary') 
+  $(".type").click(function() {
+    $(".type").removeClass('btn-primary').addClass('btn-secondary') 
     $(this).removeClass('btn-secondary').addClass('btn-primary')
     const para = {
       typeId: $(this).val(),
     }
     $.getJSON("/getTransactionsByType", para, (data) => {
-      console.log(data)
       let total = 0
       $("tbody").empty()
       for (let transaction of data) { 
@@ -22,7 +21,12 @@ $(document).ready(() => {
         )
         total += transaction.amount
       }
-      $("p#total").text("المجموع: " + String(Math.abs(total)))
+      $("p#total").text("المجموع: " + String(total))
     })
+  })
+
+  $('#print').click(() => {
+    console.log($('.btn-primary').val())
+    window.location.replace(`/print/u/1?typeId=${$('.btn-primary').val() || ''}`)
   })
 })

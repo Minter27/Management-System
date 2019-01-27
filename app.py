@@ -1,5 +1,5 @@
 # Header files (Import all needed libraries)
-from flask import Flask, render_template, redirect, request, session, jsonify
+from flask import Flask, render_template, redirect, request, session, jsonify, make_response
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
@@ -10,7 +10,7 @@ from helpers import login_required
 from datetime import datetime
 from sqlite3 import connect
 
-import re
+import pdfkit
 
 # Configure flask app
 app = Flask(__name__)
@@ -361,6 +361,101 @@ def inventory():
     })
   return render_template('inventory.html', items=items)
 
+@app.route("/print/<page>/<client>")
+def printPDF(page, client):
+  if page == "clientsAll":
+    clients = []
+    query = db.execute('SELECT * FROM clients ORDER BY clientId').fetchall()
+    for record in query:
+      clients.append({
+        'id': record[0],
+        'name': record[1],
+        'phone': record[2],
+        'balance': record[3]
+      })
+    rendered = render_template("pdfs/clientsPDF.html", clients=clients)
+  elif page == "transactions":
+    transactions = []
+    query = db.execute("SELECT * FROM transactions WHERE date >= (?) AND date <= (?) ORDER BY transactionId DESC",
+      [request.args.get('dateStart'), request.args.get('dateEnd')]).fetchall()
+    for record in query:
+      itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
+      transactions.append({
+        'transactionId': record[0],
+        'clientId': record[1],
+        'itemName': itemNameQuery[0] if itemNameQuery else "",
+        'weight': record[3],
+        'descreption': record[4],
+        'price': record[5],
+        'total': record[6],
+        'paid': record[7],
+        'type': record[9],
+        'date': record[10]
+      })
+    rendered = render_template('pdfs/transactionsPDF.html', 
+      transactions=transactions,
+      date="سجل الحركات من تاريخ " + request.args.get('dateStart') + " الى تاريخ " + request.args.get('dateEnd')
+    )
+  elif page == "u" and int(client) > 0:
+    clientId = int(client)
+    print(clientId)
+    if clientId == 1:
+      typeId = request.args.get('typeId') or '_'
+      total = 0
+      transactions = []
+      query = db.execute("SELECT * FROM cash WHERE typeId LIKE (?) ORDER BY transactionId DESC", [typeId]).fetchall()
+      for record in query:
+        total += record[2]
+        transactions.append({
+          'id': record[0],
+          'clientId': record[1],
+          'amount': record[2],
+          'descreption': str("حركة " + str(record[4]) +  " بيد عميل رقم " + "(" +str(record[1]) + ")" + " حركة رقم " + "(" + str(record[0]) + ")"),
+          'type': record[4],
+          'date': record[5]
+        })
+      rendered = render_template("pdfs/cashPDF.html", total=total, transactions=transactions)
+    else:
+      clientQ = db.execute("SELECT * FROM clients WHERE clientId = (?)", [clientId]).fetchone()
+      client = {
+        'id': clientQ[0],
+        'name': clientQ[1],
+        'phone': clientQ[2],
+        'balance': clientQ[3]
+      }
+      transactions = []
+      transactionQ = db.execute("SELECT * FROM transactions WHERE clientId = (?) ORDER BY transactionId", [clientId]).fetchall()
+      for record in transactionQ:
+        itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
+        transactions.append({
+          'transactionId': record[0],
+          'itemName': itemNameQuery[0] if itemNameQuery else "",
+          'weight': record[3],
+          'descreption': record[4],
+          'price': record[5],
+          'total': record[6],
+          'paid': record[7],
+          'type': record[9],
+          'date': record[10]
+        })
+      rendered = render_template('client.html', client=client, transactions=transactions)
+  
+
+  options = {
+    'page-size': 'A4',
+    'margin-top': '0.50in',
+    'margin-right': '0.40in',
+    'margin-bottom': '0.50in',
+    'margin-left': '0.40in',
+    'encoding': "UTF-8",
+  }
+  pdf = pdfkit.from_string(rendered, False, options=options)
+
+  response = make_response(pdf)
+  response.headers['Content-Type'] = 'application/pdf'
+  response.headers['Content-Disposition'] = 'inline;'
+
+  return response
 
 # Info gathering routes
 @app.route("/getClients")

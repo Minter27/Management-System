@@ -14,4 +14,8 @@ $(document).ready(() => {
         alert(data)
     })
   })
+
+  $("#print").click(function() {
+    window.location.replace(`/print/${$(this).val()}/~`)
+  })
 })

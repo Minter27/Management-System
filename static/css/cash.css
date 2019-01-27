@@ -3,7 +3,6 @@
 }
 .head-text {
   margin-top: 1%;
-  margin-left: 34%;
   font-size: 50px;
 }
 .center-table {
@@ -14,11 +13,19 @@
 .col-md-2 {
   font-size: 26px;
 } 
-.transactionType {
+.transactionTypeText {
   margin-left: 80%;
   font-size: 24px;
+}
+.transactionType {
+  margin-right: 5%;
 }
 button {
   padding: 5%;
   margin: 0.5%;
+}
+button#print {
+  margin-left: 50%;
+  margin-top: 22%;
+  font-size: 18px;
 }

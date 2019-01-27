@@ -33,3 +33,12 @@ input {
 button {
   margin: 2px;
 }
+button#print {
+  margin-top: 18%;
+  padding-left: 10%;
+  padding-right: 10%;
+  padding-top: 5%;
+  padding-bottom: 5%;
+  margin-right: 10%;
+  font-size: 18px;
+}

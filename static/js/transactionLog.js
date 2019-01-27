@@ -5,8 +5,6 @@ $(document).ready(() => {
       end: $('#dateEnd').val()
     }
     console.log(date)
-    /* date.start = date.start.split('-').reverse().join('-')
-    date.end = date.end.split('-').reverse().join('-') */
     $.getJSON('/transactionLog', date , (data) => {
       console.log(data)
       $('tbody').empty()
@@ -27,5 +25,9 @@ $(document).ready(() => {
         )
       }
     })
+  })
+
+  $("#print").click(function() {
+    window.location.replace(`/print/${$(this).val()}/~?dateStart=${$('#dateStart').val()}&dateEnd=${$('#dateEnd').val()}`)
   })
 })
