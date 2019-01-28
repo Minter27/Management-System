@@ -43,6 +43,13 @@ $(document).ready(() => {
     })
   })
 
+  $("#transactionId").focusout(function() {
+    $("#save").removeAttr('disabled')
+  })
+  $("#transactionId").focusin(function() {
+    $("#save").attr('disabled', 'disabled')
+  })
+
   $("#clientId").change(() => {
     selectOnValue('clientName', $("#clientId").val())
   })

@@ -486,12 +486,16 @@ def editTransactionForm():
     if clientId == 1 and paid == 0:
       return "لا يمكن دفع ذمم عندما يكون الدفع على حساب نقدي"
 
-    initalQuery = db.execute("SELECT weight, total, paid FROM transactions WHERE transactionId = (?)", [transactionId]).fetchone()
+    initalQuery = db.execute("SELECT transactionId, weight, total, paid FROM transactions WHERE transactionId = (?)", [transactionId]).fetchone()
     inital = {
-      'weight': initalQuery[0],
-      'total': initalQuery[1],
-      'paid': initalQuery[2]
+      'transactionId': initalQuery[0],
+      'weight': initalQuery[1],
+      'total': initalQuery[2],
+      'paid': initalQuery[3]
     }
+
+    if transactionId != inital['transactionId']:
+      return "لا يمكن تغيير رقم الحركة"
 
     currTime = datetime.now().strftime("%Y-%m-%d")
     db.execute("UPDATE transactions SET clientId = (?), itemId = (?), weight = (?),"
