@@ -12,6 +12,7 @@ from sqlite3 import connect
 
 import pdfkit
 
+import os
 # Configure flask app
 app = Flask(__name__)
 
@@ -47,7 +48,6 @@ def transaction():
     try:
       transactionId = int(request.form.get('transactionId'))
       clientId = int(request.form.get('clientId'))
-      clientName = str(request.form.get('clientName'))
       itemId = int(request.form.get('itemId'))
       weight = float(request.form.get('weight'))
       descreption = str(request.form.get('descreption'))
@@ -57,7 +57,7 @@ def transaction():
     except:
       return "الرجاء التأكد من تعبئة النموذج كاملاً"
 
-    if False or '' in (transactionId, clientId, clientName, itemId, weight, price, total):
+    if False or '' in (transactionId, clientId, itemId, weight, price, total):
       return "الرجاء التأكد من تعبئة النموذج كاملاً"
 
     if clientId == 1 and paid == 0:
@@ -77,11 +77,14 @@ def transaction():
               + "VALUES ((?), (?), (?), (?), (?), (?))", [transactionId, clientId, paid, "S", "بيع", currTime])
     db.commit()
 
-    total -= paid
-
-    currBalance = db.execute("SELECT client_balance FROM clients WHERE clientId =(?)", [clientId]).fetchone()[0]
-    currBalance -= total
+    currBalance = db.execute("SELECT client_balance FROM clients WHERE clientId = (?)", [clientId]).fetchone()[0]
+    currBalance -= (total - paid)
     db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = (?)", [currBalance, clientId])
+    db.commit()
+
+    cashBlanace = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
+    cashBlanace += paid
+    db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [cashBlanace])
     db.commit()
 
     currStock = db.execute("SELECT item_stock FROM inventory WHERE itemId = (?)", [itemId]).fetchone()[0]
@@ -224,10 +227,6 @@ def addItems():
     if None in (itemId, itemPrice, itemStock):
       return "تأكد من تعبة النموذج كاملاً"
 
-    stock = db.execute("SELECT item_stock FROM inventory WHERE itemId = (?)",[itemId]).fetchone()[0]
-    stock += itemStock
-    db.execute("UPDATE inventory SET item_stock = (?) WHERE itemId = (?)", [stock, itemId])
-    db.commit()
 
     currTime = datetime.now().strftime("%Y-%m-%d")
     db.execute("INSERT INTO transactions (transactionId, clientId, itemId, weight,"
@@ -240,10 +239,14 @@ def addItems():
               + "VALUES ((?), 1, (?), (?), (?), (?))", [transactionId, -total, "B", "شراء", currTime])
     db.commit()
 
-
     balance = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
     balance -= total
     db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [balance])
+    db.commit()
+
+    stock = db.execute("SELECT item_stock FROM inventory WHERE itemId = (?)",[itemId]).fetchone()[0]
+    stock += itemStock
+    db.execute("UPDATE inventory SET item_stock = (?) WHERE itemId = (?)", [stock, itemId])
     db.commit()
 
     return "/addItems"
@@ -276,7 +279,6 @@ def repayDebt():
     db.execute("INSERT INTO cash (transactionId, clientId, amount, typeId, type_name, date)"
               + "VALUES ((?), (?), (?), (?), (?), (?))", [transactionId, clientId, amount, "R", "سداد ذمم", currTime])
     db.commit()
-
 
     clientCash = db.execute("SELECT client_balance FROM clients WHERE clientId = (?)", [clientId]).fetchone()[0]
     clientCash += amount
@@ -438,7 +440,7 @@ def printPDF(page, client):
           'type': record[9],
           'date': record[10]
         })
-      rendered = render_template('client.html', client=client, transactions=transactions)
+      rendered = render_template('pdfs/clientPDF.html', client=client, transactions=transactions)
   
 
   options = {
@@ -449,6 +451,7 @@ def printPDF(page, client):
     'margin-left': '0.40in',
     'encoding': "UTF-8",
   }
+  
   pdf = pdfkit.from_string(rendered, False, options=options)
 
   response = make_response(pdf)
@@ -456,6 +459,117 @@ def printPDF(page, client):
   response.headers['Content-Disposition'] = 'inline;'
 
   return response
+
+@app.route("/editTransactionForm", methods=["GET", "POST"])
+def editTransactionForm():
+  if request.method == "POST":
+    try:
+      transactionId = int(request.form.get('transactionId'))
+      typeId = str(request.form.get('typeId'))
+      typeName = str(request.form.get('typeName'))
+      clientId = int(request.form.get('clientId'))
+      itemId = int(request.form.get('itemId'))
+      weight = float(request.form.get('weight'))
+      descreption = str(request.form.get('descreption'))
+      price = float(request.form.get('price'))
+      total = float(request.form.get('total'))
+      paid = float(request.form.get('paid'))
+    except Exception as e:
+      print("HERE")
+      print(e)
+      return "الرجاء التأكد من تعبئة النموذج كاملاً"
+
+    if None or False in (transactionId, typeId, typeName, clientId):
+      print("THERE")
+      return "الرجاء التأكد من تعبئة النموذج كاملاً"
+
+    if clientId == 1 and paid == 0:
+      return "لا يمكن دفع ذمم عندما يكون الدفع على حساب نقدي"
+
+    initalQuery = db.execute("SELECT weight, total, paid FROM transactions WHERE transactionId = (?)", [transactionId]).fetchone()
+    inital = {
+      'weight': initalQuery[0],
+      'total': initalQuery[1],
+      'paid': initalQuery[2]
+    }
+
+    currTime = datetime.now().strftime("%Y-%m-%d")
+    db.execute("UPDATE transactions SET clientId = (?), itemId = (?), weight = (?),"
+              + "descreption = (?), price = (?), total = (?), paid = (?), typeId = (?),"
+              + "typeName = (?), date = (?) WHERE transactionId = (?)",
+              [clientId, itemId, weight, descreption, price, total, paid, typeId, 
+              typeName, currTime, transactionId])
+    db.commit()
+
+    if typeId == "S":
+      if clientId == 1 and paid == 0:
+        return "لا يمكن دفع ذمم عندما يكون الدفع على حساب نقدي"
+
+      if total - paid < 0:
+        return "لا يمكن دفع اكثر من المبلغ المطلوب. اذا اردت الايداع ، الرجاء الاستعانة بخاصية حركة مالية"
+
+      db.execute("UPDATE cash SET clientId = (?), amount = (?), typeId = (?),"
+                + "type_name = (?), date = (?) WHERE transactionId = (?)", 
+                [clientId, paid, typeId, typeName, currTime, transactionId])
+      db.commit()
+
+      currBalance = db.execute("SELECT client_balance FROM clients WHERE clientId = (?)", [clientId]).fetchone()[0]
+      currBalance += (inital['total'] - inital['paid']) - (total - paid)
+      db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = (?)", [currBalance, clientId])
+      db.commit()
+
+      cashBlanace = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
+      cashBlanace += (paid - inital['paid'])
+      db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [cashBlanace])
+      db.commit()
+
+      currStock = db.execute("SELECT item_stock FROM inventory WHERE itemId = (?)", [itemId]).fetchone()[0]
+      currStock += (inital['weight'] - weight)
+      db.execute("UPDATE inventory SET item_stock = (?) WHERE itemId = (?)", [currStock, itemId])
+      db.commit()
+    elif typeId == "B":
+      db.execute("UPDATE cash SET clientId = (?), amount = (?), typeId = (?),"
+                + "type_name = (?), date = (?) WHERE transactionId = (?)", 
+                [clientId, -total, typeId, typeName, currTime, transactionId])
+      db.commit()
+
+      cashBlanace = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
+      cashBlanace += (inital['total'] - total)
+      db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [cashBlanace])
+      db.commit()
+
+      currStock = db.execute("SELECT item_stock FROM inventory WHERE itemId = (?)", [itemId]).fetchone()[0]
+      currStock += (weight - inital['weight'])
+      db.execute("UPDATE inventory SET item_stock = (?) WHERE itemId = (?)", [currStock, itemId])
+      db.commit()
+    elif typeId == "R":
+      db.execute("UPDATE cash SET clientId = (?), amount = (?), typeId = (?),"
+                + "type_name = (?), date = (?) WHERE transactionId = (?)", 
+                [clientId, paid, typeId, typeName, currTime, transactionId])
+      db.commit()
+
+      currBalance = db.execute("SELECT client_balance FROM clients WHERE clientId = (?)", [clientId]).fetchone()[0]
+      currBalance += (paid - inital['paid'])
+      db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = (?)", [currBalance, clientId])
+      db.commit()
+
+      cashBlanace = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
+      cashBlanace += (paid - inital['paid'])
+      db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [cashBlanace])
+      db.commit()
+    elif typeId == "E": 
+      db.execute("UPDATE cash SET clientId = (?), amount = (?), typeId = (?),"
+                + "type_name = (?), date = (?) WHERE transactionId = (?)", 
+                [clientId, -paid, typeId, typeName, currTime, transactionId])
+      db.commit()
+
+      cashBlanace = db.execute("SELECT client_balance FROM clients WHERE clientId = 1").fetchone()[0]
+      cashBlanace += (inital['paid'] - paid)
+      db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [cashBlanace])
+      db.commit()
+    return "/editTransactionForm"
+  else:
+    return render_template("editForm.html")
 
 # Info gathering routes
 @app.route("/getClients")
@@ -477,3 +591,21 @@ def getTransactionsByType():
       'date': record[5]
     })
   return jsonify(transactions)
+
+@app.route("/getTransactionById")
+def getTransactionById():
+  query = db.execute("SELECT * FROM transactions WHERE transactionId = (?)", [request.args.get('transactionId')]).fetchone()
+  
+  if not query:
+    return jsonify({ 'status': "لا يوجد حركة بهذا الرقم" })
+  
+  return jsonify({
+    'clientId': query[1],
+    'itemId': query[2],
+    'weight': query[3],
+    'descreption': query[4],
+    'price': query[5],
+    'total': query[6],
+    'paid': query[7],
+    'typeId': query[8],
+  })

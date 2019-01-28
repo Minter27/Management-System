@@ -42,7 +42,6 @@ $(document).ready(() => {
     const para = {
       transactionId: $('#transactionId').val(),
       clientId: $('#clientId').val(),
-      clientName: $('#clientName option:selected').val(),
       itemId: $('#item option:selected').val(),
       weight: $('#weight').val(),
       descreption: $('#descreption').val(),

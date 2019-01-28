@@ -26,7 +26,6 @@ $(document).ready(() => {
   })
 
   $('#print').click(() => {
-    console.log($('.btn-primary').val())
     window.location.replace(`/print/u/1?typeId=${$('.btn-primary').val() || ''}`)
   })
 })
