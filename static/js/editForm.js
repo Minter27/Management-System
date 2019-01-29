@@ -22,7 +22,7 @@ $(document).ready(() => {
           $("#weight, #item, #price").attr('disabled', 'disabled')
         }
         else if (data.typeId == "B") { 
-          $("#paid").attr('disabled', 'disabled')
+          $("#paid, #clientId, #clientName").attr('disabled', 'disabled')
         }
         try {
           selectOnValue('transactionType', `"${data.typeId}"`)
@@ -55,8 +55,9 @@ $(document).ready(() => {
   })
 
   const itemsArr = ["حديد مشكل", "حديد 10", "حديد 8", "اسمنت", "اسمنت ابيض اردني", "اسمنت ابيض اجنبي",
-  "شيد", "سلك ناعم", "سلك مجدول", "مسامير عادي", "مسامير باطون", "كانات", "اسافين", "ستوك اردتي",
-  "ستوك اجنبي"]
+  "شيد", "سلك ناعم", "سلك مجدول", "مسامير عادي", "مسامير باطون", "اسافين", "ستوك اردتي",
+  "ستوك اجنبي", "مثلث صغير", "مربع", "مثلث", "60x15", "50x15", "50x18", "48x15", "45x15", "40x18", "40x15", "30x18", 
+  "30x15"]
   for (let i in itemsArr){
     $("#item").append(
       `<option value=${parseInt(i, 10) + 1}>${itemsArr[i]}</option>`

@@ -21,7 +21,7 @@ $(document).ready(() => {
         )
         total += transaction.amount
       }
-      $("p#total").text("المجموع: " + String(total))
+      $("p#total").text("المجموع: " + total.toFixed(1))
     })
   })
 
