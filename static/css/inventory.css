@@ -1,10 +1,41 @@
-.head-text {
+.row {
   margin-top: 8%;
-  margin-left: 80%;
+}
+.modal, form, input {
+  text-align: right;
+}
+.head-text {
+  margin-left: 70%;
   font-size: 60px;
+}
+table {
+  font-size: 20px;
 }
 .center-table {
   margin-top: 2%;
   margin-right: 2%;
   margin-left: 1%;
+}
+.new-item {
+  margin-top: 3%;
+  margin-left: 35%;
+  padding-top: 11px;
+  padding-bottom: 11px;
+  padding-right: 16px;
+  padding-left: 16px;
+  font-size: 18px;
+}
+label {
+  margin-left: 5px;
+  margin-top: 8px;
+  font-size: 18px;
+}
+input {
+  text-align: right;
+  margin: 5px;
+  border-radius: 15%;
+  padding: 10px;
+}
+button {
+  margin: 2px;
 }

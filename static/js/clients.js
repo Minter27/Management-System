@@ -6,7 +6,6 @@ $(document).ready(() => {
       phone: $("#clientPhone").val(),
       balance: $("#clientBalance").val()
     }
-    console.log(para)
     $.post("/clients", para, (data) => {
       if (data[0] === "/")
         window.location.replace(data)

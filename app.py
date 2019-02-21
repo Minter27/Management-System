@@ -106,10 +106,12 @@ def transactionLog():
     query = db.execute("SELECT * FROM transactions ORDER BY transactionId DESC").fetchall()
     for record in query:
       print(record)
+      cleintNameQuery = db.execute("SELECT client_name FROM clients WHERE clientId = (?)", [record[1]]).fetchone()
       itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
       transactions.append({
         'transactionId': record[0],
         'clientId': record[1],
+        'clientName': cleintNameQuery[0] if cleintNameQuery else "",
         'itemName': itemNameQuery[0] if itemNameQuery else "",
         'weight': record[3],
         'descreption': record[4],
@@ -153,11 +155,10 @@ def clients():
       name = str(request.form.get("name"))
       phone = str(request.form.get("phone"))
       balance = float(request.form.get("balance"))
-      print(id, name, phone, balance)
     except:
       return "الرجاء التأكد من تعبئة النموذج كاملاً"
 
-    if (None in (id, name, phone)) or (len(name) < 3):
+    if (None in (id, name, )) or (len(name) < 3):
       return "الرجاء التأكد من تعبئة النموذج كاملاً"
 
     db.execute("INSERT INTO clients (clientId, client_name, client_phone, client_balance)"
@@ -178,7 +179,7 @@ def clients():
       })
     return render_template('clients.html', clients=clients)
 
-@app.route("/u/<clientId>")
+@app.route("/u/<clientId>", methods=["GET"])
 def client(clientId):
   clientId = int(clientId)
   print(clientId)
@@ -189,7 +190,7 @@ def client(clientId):
     clientQ = db.execute("SELECT * FROM clients WHERE clientId = (?)", [clientId]).fetchone()
     client = {
       'id': clientQ[0],
-      'name': clientQ[1], # problem on this line, jinja not rendering the full name
+      'name': clientQ[1],
       'phone': clientQ[2],
       'balance': clientQ[3]
     }
@@ -296,7 +297,7 @@ def repayDebt():
     return render_template('repayDebt.html', transactionId=(transactionId+1))
 
 
-@app.route("/cash")
+@app.route("/cash", methods=["GET"])
 def cash():
   stats = {
     'total': 0,
@@ -351,19 +352,35 @@ def expense():
     transactionId = db.execute("SELECT transactionId FROM transactions ORDER BY transactionId DESC LIMIT 1").fetchone()[0]
     return render_template('expense.html', transactionId=(transactionId+1))
 
-@app.route("/inventory")
+@app.route("/inventory", methods=["GET", "POST"])
 def inventory():
-  items = []
-  query = db.execute("SELECT * FROM inventory ORDER BY itemId").fetchall()
-  for record in query:
-    items.append({
-      'id': record[0],
-      'name': record[1],
-      'stock': record[2]
-    })
-  return render_template('inventory.html', items=items)
+  if request.method == "POST":
+    try:
+      id = int(request.form.get("id"))
+      name = str(request.form.get("name"))
+    except:
+      return "الرجاء التأكد من تعبئة النموذج كاملاً"
 
-@app.route("/print/<page>/<client>")
+    if None in (id, name):
+      return "الرجاء التأكد من تعبئة النموذج كاملاً"
+    
+    db.execute("INSERT INTO inventory (itemId, item_name, item_stock) VALUES ((?), (?), 0)", [id, name])
+    db.commit()
+
+    return "/inventory"
+
+  else:
+    items = []
+    query = db.execute("SELECT * FROM inventory ORDER BY itemId").fetchall()
+    for record in query:
+      items.append({
+        'id': record[0],
+        'name': record[1],
+        'stock': record[2]
+      })
+    return render_template('inventory.html', items=items)
+
+@app.route("/print/<page>/<client>", methods=["GET"])
 def printPDF(page, client):
   if page == "clientsAll":
     clients = []
@@ -614,12 +631,12 @@ def editTransactionForm():
     return render_template("editForm.html")
 
 # Info gathering routes
-@app.route("/getClients")
+@app.route("/getClients", methods=["GET"])
 def getClientId():
   query = db.execute("SELECT client_name FROM clients ORDER BY clientId").fetchall()
   return jsonify( { 'clientArr': list(query) } )
 
-@app.route("/getTransactionsByType")
+@app.route("/getTransactionsByType", methods=["GET"])
 def getTransactionsByType():
   transactions = []
   query = db.execute("SELECT * FROM cash WHERE typeId = (?)", [request.args.get('typeId')]).fetchall()
@@ -634,7 +651,7 @@ def getTransactionsByType():
     })
   return jsonify(transactions)
 
-@app.route("/getTransactionById")
+@app.route("/getTransactionById", methods=["GET"])
 def getTransactionById():
   query = db.execute("SELECT * FROM transactions WHERE transactionId = (?)", [request.args.get('transactionId')]).fetchone()
   

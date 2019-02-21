@@ -38,6 +38,7 @@
         <tr>
           <th scope="col">رقم الحركة</th>
           <th scope="col">رقم العميل</th>
+          <th scope="col">اسم العميل</th>
           <th scope="col">الصنف</th>
           <th scope="col">الوزن/العدد</th>
           <th scope="col">البيان</th>
@@ -53,6 +54,7 @@
           <tr>
             <th scope="row">{{ transaction.transactionId }}</th>
             <td>{{ transaction.clientId }}</td>
+            <td>{{ transaction.clientName }}</td>
             <td>{{ transaction.itemName }}</td>
             <td>{{ transaction.weight }}</td>
             <td>{{ transaction.descreption }}</td>
