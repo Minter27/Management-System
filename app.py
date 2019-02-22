@@ -13,6 +13,7 @@ from sqlite3 import connect
 import pdfkit
 
 import os
+
 # Configure flask app
 app = Flask(__name__)
 
