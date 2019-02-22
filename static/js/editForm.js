@@ -72,9 +72,8 @@ $(document).ready(() => {
     }
   })
   
-  $('#clientName').on('change', function (e) {
-    const valueSelected = this.value
-    $("#clientId").val(valueSelected)
+  $('#clientName').on('change', function () {
+    $("#clientId").val(this.value)
   })
 
   $('#weight').on('change', () => {
@@ -106,7 +105,7 @@ $(document).ready(() => {
       else
         alert(data)
    })
-})
+  })
 
   $("#clear").click(() => {
     const transactionId = $('#transactionId').val()

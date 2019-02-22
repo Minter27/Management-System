@@ -518,7 +518,7 @@ def editTransactionForm():
 
     
     if (typeId == "B" or typeId == "E") and clientId != initial['clientId']:
-      return "لا يمكن تغيير العميل عندما تكون الحركة شراء"
+      return "لا يمكن تغيير العميل عندما تكون الحركة شراء او نفقة"
 
 
     currTime = datetime.now().strftime("%Y-%m-%d")
