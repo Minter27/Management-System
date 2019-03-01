@@ -16,7 +16,7 @@ import os
 app = Flask(__name__)
 
 # Configure the database's connection with python
-db = connect("websiteWORKING.db", check_same_thread=False)
+db = connect("website.db", check_same_thread=False)
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True

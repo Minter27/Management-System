@@ -3,3 +3,4 @@
 /websiteWORKING.db
 /yarn.lock
 /test.*
+**.DS_Store
