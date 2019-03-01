@@ -14,7 +14,7 @@
       </div>
       <div class="form-group col-md-3">
         <label for="clientId">رقم العميل</label>
-        <input class="form-control" name="clientId" id="clientId" placeholder="رقم العميل" autocomplete="off" autofocus type="number" min="1" />
+        <input class="form-control" name="clientId" id="clientId" placeholder="رقم العميل" autocomplete="off" autofocus type="number" min="2" />
       </div>
       <div class="form-group col-md-6">
         <label for="clientName">اسم العميل</label>
@@ -32,7 +32,7 @@
       </div>
       <div class="form-group col-md-3">
         <label for="weight">الوزن/العدد</label>
-        <input class="form-control" name="weight" id="weight" placeholder="الوزن/العدد" type="text"/>
+        <input class="form-control" name="weight" id="weight" placeholder="الوزن/العدد" type="number" step="0.005"/>
       </div>
       <div class="form-group col-md-6">
         <label for="descreption">البيان</label>
@@ -42,7 +42,7 @@
     <div class="form-row">
       <div class="form-group col-md-4">
         <label for="price">السعر</label>
-        <input class="form-control" name="price" id="price" placeholder="بالدينار" type="text" />
+        <input class="form-control" name="price" id="price" placeholder="بالدينار" type="number" step="0.005" />
       </div>
       <div class="form-group col-md-4">
         <label for="total">المبلغ المطلوب</label>
@@ -50,7 +50,7 @@
       </div>
       <div class="form-group col-md-4">
         <label for="paid">المدفوع</label>
-        <input class="form-control" name="paid" id="paid" placeholder="بالدينار" type="text" />
+        <input class="form-control" name="paid" id="paid" placeholder="بالدينار" type="number" step="0.005" />
       </div>
     </div>
     <button class="btn btn-primary" id="next" type="button">حركة جديدة</button>
