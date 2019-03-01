@@ -633,6 +633,17 @@ def getClientId():
   query = db.execute("SELECT client_name FROM clients ORDER BY clientId").fetchall()
   return jsonify( { 'clientArr': list(query) } )
 
+@app.route("/getTypes", methods=["GET"])
+def getTypes():
+  types = []
+  query = db.execute("SELECT * FROM inventory ORDER BY itemId").fetchall()
+  for record in query:
+    types.append({
+      'id': record[0],
+      'name': record[1]
+    })
+  return jsonify(types)
+
 @app.route("/getTransactionsByType", methods=["GET"])
 def getTransactionsByType():
   transactions = []

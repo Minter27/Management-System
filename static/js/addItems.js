@@ -3,15 +3,13 @@ const round = (number) => {
 }
 
 $(document).ready(() => {
-  const itemsArr = ["حديد مشكل", "حديد 10", "حديد 8", "اسمنت", "اسمنت ابيض اردني", "اسمنت ابيض اجنبي",
-  "شيد", "سلك ناعم", "سلك مجدول", "مسامير عادي", "مسامير باطون", "اسافين", "ستوك اردتي",
-  "ستوك اجنبي", "مثلث صغير", "مربع", "مثلث", "60x15", "50x15", "50x18", "48x15", "45x15", "40x18", "40x15", "30x18", 
-  "30x15"]
-  for (let i in itemsArr){
-    $("#itemName").append(
-      `<option value=${parseInt(i, 10) + 1}>${itemsArr[i]}</option>`
-    )
-  }
+  $.getJSON('/getTypes', null, data => {
+    for (let type of data){
+      $("#itemName").append(
+        `<option value=${type.id}>${type.name}</option>`
+      )
+    }
+  })
 
   $("#itemId").change(() => {
     $('#itemName option:selected').removeAttr('selected')
@@ -19,7 +17,6 @@ $(document).ready(() => {
   })
 
   $('#itemName').on('change', function (e) {
-    const optionSelected = $("option:selected", this)
     const valueSelected = this.value
     $("#itemId").val(valueSelected)
   })
