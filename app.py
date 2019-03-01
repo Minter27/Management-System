@@ -490,13 +490,11 @@ def editTransactionForm():
       price = float(request.form.get('price'))
       total = float(request.form.get('total'))
       paid = float(request.form.get('paid'))
-    except Exception as e:
-      print("HERE")
-      print(e)
+      next = str(request.form.get('next'))
+    except:
       return "الرجاء التأكد من تعبئة النموذج كاملاً"
 
     if None or False in (transactionId, typeId, typeName, clientId):
-      print("THERE")
       return "الرجاء التأكد من تعبئة النموذج كاملاً"
 
     if clientId == 1 and paid == 0:
@@ -625,7 +623,7 @@ def editTransactionForm():
       cashBlanace += (initial['paid'] - paid)
       db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [cashBlanace])
       db.commit()
-    return "/editTransactionForm"
+    return next
   else:
     return render_template("editForm.html")
 

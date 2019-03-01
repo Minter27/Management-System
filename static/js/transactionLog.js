@@ -141,6 +141,7 @@ $(document).ready(() => {
       price: $('#price').val() || "0",
       total: $('#total').val() || "0",
       paid: $('#paid').val() || "0",
+      next: "transactionLog",
     }
     console.log(para)
    $.post('/editTransactionForm', para, (data) => {
