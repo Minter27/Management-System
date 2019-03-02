@@ -3,31 +3,43 @@ const round = (number) => {
 }
 
 $(document).ready(() => {
-  $("#clientId").change(() => {
-    $('#clientName option:selected').removeAttr('selected')
-    $(`#clientName option[value=${$("#clientId").val()}]`).attr('selected', 'selected')
-  })
+  let lengths = {}
 
-  $.getJSON('/getTypes', null, data => {
-    for (let type of data){
+  $.getJSON('/getTypes', null, types => {
+    for (let type of types){
       $("#item").append(
         `<option value=${type.id}>${type.name}</option>`
       )
     }
   })
 
-  $.getJSON('/getClients', null, (data) => {
-    for (let client in data.clientArr){
+  $.getJSON('/getClients', null, clients => {
+    for (let client of clients){
+      if (client.id === 1) continue
+      else if (client.id < 0) {
+        alert('حدث خطأ. الرجاء اعادة التشغيل')
+        break
+      }
       $("#clientName").append(
-        `<option value=${parseInt(client, 10) + 1}>${data.clientArr[client]}</option>`
+        `<option value=${client.id}>${client.name}</option>`
       )
+    }
+    lengths.clients = clients.length
+  })
+
+  $("#clientId").change(function() {
+    $('#clientName option:selected').removeAttr('selected')
+    if (this.value > 1 && this.value <= lengths.clients) {
+      $(`#clientName option[value=${this.value}]`).attr('selected', 'selected')
+    } else {
+      $('#stdoption1').attr('selected', 'selected')
+      this.value = ''
+      alert('لا يوجد عميل بهذا الرقم')
     }
   })
   
-  $('#clientName').on('change', function (e) {
-    const optionSelected = $("option:selected", this)
-    const valueSelected = this.value
-    $("#clientId").val(valueSelected)
+  $('#clientName').on('change', function() {
+    $("#clientId").val(this.value)
   })
 
   $('#weight').on('change', () => {

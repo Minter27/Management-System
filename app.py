@@ -630,8 +630,15 @@ def editTransactionForm():
 # Info gathering routes
 @app.route("/getClients", methods=["GET"])
 def getClientId():
-  query = db.execute("SELECT client_name FROM clients ORDER BY clientId").fetchall()
-  return jsonify( { 'clientArr': list(query) } )
+  clients = []
+  query = db.execute("SELECT clientId, client_name FROM clients ORDER BY clientId").fetchall()
+  print(query)
+  for record in query:
+    clients.append({
+      'id': record[0],
+      'name': record[1]
+    })
+  return jsonify(clients)
 
 @app.route("/getTypes", methods=["GET"])
 def getTypes():

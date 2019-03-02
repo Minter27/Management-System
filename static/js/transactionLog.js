@@ -76,10 +76,7 @@ $(document).ready(() => {
   }
 
   $("button#edit").each(function() {
-    console.log(this.value)
     $(this).click(() => {
-      //TODO SEND TRANSACTIONID TO GET INFO TO RENDER IN THE MODAL BEING TRIGGERED
-      console.log("HERE", this.value)
       $("#transactionId").val(this.value)
       readyFormWithData()
     })

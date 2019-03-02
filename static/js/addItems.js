@@ -3,22 +3,30 @@ const round = (number) => {
 }
 
 $(document).ready(() => {
+  let lengths = {}
+
   $.getJSON('/getTypes', null, data => {
     for (let type of data){
       $("#itemName").append(
         `<option value=${type.id}>${type.name}</option>`
       )
     }
+    lengths.types = data.length
   })
 
-  $("#itemId").change(() => {
+  $("#itemId").change(function() {
     $('#itemName option:selected').removeAttr('selected')
-    $(`#itemName option[value=${$("#itemId").val()}]`).attr('selected', 'selected')
+    if (this.value > 0 && this.value <= lengths.types) {
+      $(`#itemName option[value=${this.value}]`).attr('selected', 'selected')
+    } else {
+      $('#stdoption').attr('selected', 'selected')
+      this.value = ''
+      alert('لا يوجد صنف بهذا الرقم')
+    }
   })
 
-  $('#itemName').on('change', function (e) {
-    const valueSelected = this.value
-    $("#itemId").val(valueSelected)
+  $('#itemName').on('change', function() {
+    $("#itemId").val(this.value)
   })
 
   $('#itemStock').on('change', () => {
