@@ -13,6 +13,8 @@ const selectOnValue = (elementId, selectValue) => {
 }
 
 $(document).ready(() => {
+  let lengths = {}
+
   $('#search').click(() => {
     const date = {
       start: $('#dateStart').val(),
@@ -45,6 +47,14 @@ $(document).ready(() => {
     window.location.replace(`/print/${$(this).val()}/~?dateStart=${$('#dateStart').val()}&dateEnd=${$('#dateEnd').val()}`)
   })
 
+
+  $("button#edit").each(function() {
+    $(this).click(() => {
+      $("#transactionId").val(this.value)
+      readyFormWithData()
+    })
+  })
+
   const readyFormWithData = () => {
     $("#transactionType").attr('disabled', 'disabled')
     $.getJSON("/getTransactionById", { transactionId: $("#transactionId").val() }, (data) => {
@@ -75,13 +85,6 @@ $(document).ready(() => {
     })
   }
 
-  $("button#edit").each(function() {
-    $(this).click(() => {
-      $("#transactionId").val(this.value)
-      readyFormWithData()
-    })
-  })
-
   $("#transactionId").change(readyFormWithData)
 
   $("#transactionId").focusout(function() {
@@ -91,8 +94,18 @@ $(document).ready(() => {
     $("#save").attr('disabled', 'disabled')
   })
 
-  $("#clientId").change(() => {
-    selectOnValue('clientName', $("#clientId").val())
+  $.getJSON('/getClients', null, clients => {
+    for (let client of clients){
+      if (client.id === 1) continue
+      else if (client.id < 0) {
+        alert('حدث خطأ. الرجاء اعادة التشغيل')
+        break
+      }
+      $("#clientName").append(
+        `<option value=${client.id}>${client.name}</option>`
+      )
+    }
+    lengths.clients = clients.length
   })
 
   $.getJSON('/getTypes', null, data => {
@@ -103,14 +116,17 @@ $(document).ready(() => {
     }
   })
 
-  $.getJSON('/getClients', null, (data) => {
-    for (let client in data.clientArr){
-      $("#clientName").append(
-        `<option value=${parseInt(client, 10) + 1}>${data.clientArr[client]}</option>`
-      )
+  $("#clientId").change(function() {
+    $('#clientName option:selected').removeAttr('selected')
+    if (this.value > 1 && this.value <= lengths.clients) {
+      $(`#clientName option[value=${this.value}]`).attr('selected', 'selected')
+    } else {
+      $('#stdoption2').attr('selected', 'selected')
+      this.value = ''
+      alert('لا يوجد عميل بهذا الرقم')
     }
   })
-  
+
   $('#clientName').on('change', function () {
     $("#clientId").val(this.value)
   })

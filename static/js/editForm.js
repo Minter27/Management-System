@@ -53,20 +53,6 @@ $(document).ready(() => {
     $("#save").attr('disabled', 'disabled')
   })
 
-  $("#transactionType").on('change', function() {
-    console.log(this.value)
-    const value = this.value
-    if (value === "R" || value === "E") {
-      $("#weight, #item, #price").attr('disabled', 'disabled')
-    }
-    else if (value == "B") { 
-      $("#paid, #clientId, #clientName").attr('disabled', 'disabled')
-    } else {
-      $('select, input:not(#total)').removeAttr('disabled')
-    }
-  })
-
-
   $.getJSON('/getClients', null, clients => {
     for (let client of clients){
       if (client.id === 1) continue

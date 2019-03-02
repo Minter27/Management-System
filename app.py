@@ -623,7 +623,7 @@ def editTransactionForm():
       cashBlanace += (initial['paid'] - paid)
       db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [cashBlanace])
       db.commit()
-    return next
+    return "/" + next
   else:
     return render_template("editForm.html")
 
