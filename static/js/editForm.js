@@ -8,11 +8,13 @@ const selectOnValue = (elementId, selectValue) => {
     $(`#${elementId} option[value=${selectValue}]`).attr('selected', 'selected')
   } catch(err) {
     console.error(err)
-    return
   }
+  return
 }
 
 $(document).ready(() => {
+  let lengths = {}
+
   $("#transactionId").change(() => {
     $("#transactionType").attr('disabled', 'disabled')
     $.getJSON("/getTransactionById", { transactionId: $("#transactionId").val() }, (data) => {
@@ -43,6 +45,7 @@ $(document).ready(() => {
     })
   })
 
+  // Disable saving when editing trasactionId
   $("#transactionId").focusout(function() {
     $("#save").removeAttr('disabled')
   })
@@ -50,8 +53,32 @@ $(document).ready(() => {
     $("#save").attr('disabled', 'disabled')
   })
 
-  $("#clientId").change(() => {
-    selectOnValue('clientName', $("#clientId").val())
+  $("#transactionType").on('change', function() {
+    console.log(this.value)
+    const value = this.value
+    if (value === "R" || value === "E") {
+      $("#weight, #item, #price").attr('disabled', 'disabled')
+    }
+    else if (value == "B") { 
+      $("#paid, #clientId, #clientName").attr('disabled', 'disabled')
+    } else {
+      $('select, input:not(#total)').removeAttr('disabled')
+    }
+  })
+
+
+  $.getJSON('/getClients', null, clients => {
+    for (let client of clients){
+      if (client.id === 1) continue
+      else if (client.id < 0) {
+        alert('حدث خطأ. الرجاء اعادة التشغيل')
+        break
+      }
+      $("#clientName").append(
+        `<option value=${client.id}>${client.name}</option>`
+      )
+    }
+    lengths.clients = clients.length
   })
 
   $.getJSON('/getTypes', null, data => {
@@ -62,14 +89,17 @@ $(document).ready(() => {
     }
   })
 
-  $.getJSON('/getClients', null, (data) => {
-    for (let client in data.clientArr){
-      $("#clientName").append(
-        `<option value=${parseInt(client, 10) + 1}>${data.clientArr[client]}</option>`
-      )
+  $("#clientId").change(function() {
+    $('#clientName option:selected').removeAttr('selected')
+    if (this.value > 1 && this.value <= lengths.clients) {
+      $(`#clientName option[value=${this.value}]`).attr('selected', 'selected')
+    } else {
+      $('#stdoption2').attr('selected', 'selected')
+      this.value = ''
+      alert('لا يوجد عميل بهذا الرقم')
     }
   })
-  
+
   $('#clientName').on('change', function () {
     $("#clientId").val(this.value)
   })
