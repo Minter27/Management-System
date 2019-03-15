@@ -2,9 +2,13 @@
 This project was originally built to help manage the inventory of a construction materials supplier but it is entirely possible, with some tweaking, to use it for any kind of inventory management hence its got all the requirements one might need for any inventory that needs managing.
 
 ## Dependencies 
+- **jQuery**
+- **Bootstrap 4**
+### Python
 - **flask**
 - **wkhtmltopdf**
 - **pdfkit**
+
 
 ## Geting started
 
