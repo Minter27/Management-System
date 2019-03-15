@@ -29,7 +29,7 @@ def after_request(response):
   return response
 
 # Error logging
-file_handler = FileHandler('error.txt')
+file_handler = FileHandler('py_error.txt')
 file_handler.setLevel(WARNING)
 app.logger.addHandler(file_handler)
 
@@ -692,3 +692,16 @@ def getTransactionById():
     'paid': query[7],
     'typeId': query[8],
   })
+
+# Javascript error handler
+@app.route('/onJSError/<e>', methods=["GET"])
+def onJSError(e):
+  print(e)
+  path = request.args.get('path')
+  print(path)
+  f = open('js_error.txt', 'a')
+  f.write('[{}]:\n'.format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+  f.write('  ' + str(e) + '\n')
+  f.write('  ' + str(path) + '\n')
+  f.close()
+  return 'None'
