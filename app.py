@@ -305,10 +305,12 @@ def cash():
   transactions = []
   query = db.execute("SELECT * FROM cash ORDER BY transactionId DESC").fetchall()
   for record in query:
+    clientNameQuery = db.execute("SELECT client_name FROM clients WHERE clientId = (?)", [record[1]]).fetchone()
     stats['total'] += record[2]
     transactions.append({
       'id': record[0],
       'clientId': record[1],
+      'clientName': clientNameQuery[0] if clientNameQuery else "",
       'amount': record[2],
       'descreption': str("حركة " + str(record[4]) +  " بيد عميل رقم " + "(" +str(record[1]) + ")" + " حركة رقم " + "(" + str(record[0]) + ")"),
       'type': record[4],
