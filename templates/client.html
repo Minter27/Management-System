@@ -15,7 +15,7 @@
         </div>
         <div class="form-group col-md-8">
           <label>اسم العميل</label>
-          <input class="form-control"  disabled value="{{ client.name }}" />
+          <input class="form-control"  value="{{ client.name }}" disabled />
         </div>
       </div>
       <div class="form-row">
@@ -23,12 +23,21 @@
           <label>رقم الهاتف</label>
           <input class="form-control" value="{{ client.phone }}" disabled />
         </div>
-        <div class="form-group col-md-6">
+        <div class="form-group col-md-5">
           <label>الرصيد الحالي</label>
-          <input class="form-control" value="{{ client.balance }}" disabled />
+          <input 
+            class="form-control" 
+            id="balance" 
+            type="number"
+            step="0.001"
+            value="{{ client.balance }}" 
+          />
         </div>
         <div class="col-md-1">
-          <button class="btn btn-primary" id="print" type="button">طباعة</button>
+          <button class="btn btn-primary row-btn" id="edit" type="button">تعديل الرصيد</button>
+        </div>
+        <div class="col-md-1">
+          <button class="btn btn-primary row-btn" id="print" type="button">طباعة</button>
         </div>
       </div>
     </form>

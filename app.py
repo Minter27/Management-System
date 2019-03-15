@@ -175,37 +175,47 @@ def clients():
       })
     return render_template('clients.html', clients=clients)
 
-@app.route("/u/<clientId>", methods=["GET"])
+@app.route("/u/<clientId>", methods=["GET", "POST"])
 def client(clientId):
   clientId = int(clientId)
   print(clientId)
   if clientId == 1:
     return redirect("/cash")
+  if request.method == "POST":
+    try:
+      balance = float(request.form.get('balance'))
+    except:
+      return "حدث خطأ. الرجاء اعادة الحاولة مع التأكد من الرصيد المدخل"
+    print(balance)
+    db.execute('UPDATE clients SET client_balance = (?) WHERE clientId = (?)', [balance, clientId])
+    db.commit()
 
-  if clientId:
-    clientQ = db.execute("SELECT * FROM clients WHERE clientId = (?)", [clientId]).fetchone()
-    client = {
-      'id': clientQ[0],
-      'name': clientQ[1],
-      'phone': clientQ[2],
-      'balance': clientQ[3]
-    }
-    transactions = []
-    transactionQ = db.execute("SELECT * FROM transactions WHERE clientId = (?) ORDER BY transactionId", [clientId]).fetchall()
-    for record in transactionQ:
-      itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
-      transactions.append({
-        'transactionId': record[0],
-        'itemName': itemNameQuery[0] if itemNameQuery else "",
-        'weight': record[3],
-        'descreption': record[4],
-        'price': record[5],
-        'total': record[6],
-        'paid': record[7],
-        'type': record[9],
-        'date': record[10]
-      })
-  return render_template('client.html', client=client, transactions=transactions)
+    return "/u/{}".format(clientId)
+  else:
+    if clientId:
+      clientQ = db.execute("SELECT * FROM clients WHERE clientId = (?)", [clientId]).fetchone()
+      client = {
+        'id': clientQ[0],
+        'name': clientQ[1],
+        'phone': clientQ[2],
+        'balance': clientQ[3]
+      }
+      transactions = []
+      transactionQ = db.execute("SELECT * FROM transactions WHERE clientId = (?) ORDER BY transactionId", [clientId]).fetchall()
+      for record in transactionQ:
+        itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
+        transactions.append({
+          'transactionId': record[0],
+          'itemName': itemNameQuery[0] if itemNameQuery else "",
+          'weight': record[3],
+          'descreption': record[4],
+          'price': record[5],
+          'total': record[6],
+          'paid': record[7],
+          'type': record[9],
+          'date': record[10]
+        })
+    return render_template('client.html', client=client, transactions=transactions)
 
 
 @app.route("/addItems", methods=["GET", "POST"])
