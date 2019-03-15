@@ -3,25 +3,30 @@ const round = (number) => {
 }
 
 $(document).ready(() => {
-  const itemsArr = ["حديد مشكل", "حديد 10", "حديد 8", "اسمنت", "اسمنت ابيض اردني", "اسمنت ابيض اجنبي",
-  "شيد", "سلك ناعم", "سلك مجدول", "مسامير عادي", "مسامير باطون", "اسافين", "ستوك اردتي",
-  "ستوك اجنبي", "مثلث صغير", "مربع", "مثلث", "60x15", "50x15", "50x18", "48x15", "45x15", "40x18", "40x15", "30x18", 
-  "30x15"]
-  for (let i in itemsArr){
-    $("#itemName").append(
-      `<option value=${parseInt(i, 10) + 1}>${itemsArr[i]}</option>`
-    )
-  }
+  let lengths = {}
 
-  $("#itemId").change(() => {
-    $('#itemName option:selected').removeAttr('selected')
-    $(`#itemName option[value=${$("#itemId").val()}]`).attr('selected', 'selected')
+  $.getJSON('/getTypes', null, data => {
+    for (let type of data){
+      $("#itemName").append(
+        `<option value=${type.id}>${type.name}</option>`
+      )
+    }
+    lengths.types = data.length
   })
 
-  $('#itemName').on('change', function (e) {
-    const optionSelected = $("option:selected", this)
-    const valueSelected = this.value
-    $("#itemId").val(valueSelected)
+  $("#itemId").change(function() {
+    $('#itemName option:selected').removeAttr('selected')
+    if (this.value > 0 && this.value <= lengths.types) {
+      $(`#itemName option[value=${this.value}]`).attr('selected', 'selected')
+    } else {
+      $('#stdoption').attr('selected', 'selected')
+      this.value = ''
+      alert('لا يوجد صنف بهذا الرقم')
+    }
+  })
+
+  $('#itemName').on('change', function() {
+    $("#itemId").val(this.value)
   })
 
   $('#itemStock').on('change', () => {

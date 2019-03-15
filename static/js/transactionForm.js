@@ -3,33 +3,43 @@ const round = (number) => {
 }
 
 $(document).ready(() => {
-  $("#clientId").change(() => {
-    $('#clientName option:selected').removeAttr('selected')
-    $(`#clientName option[value=${$("#clientId").val()}]`).attr('selected', 'selected')
-  })
+  let lengths = {}
 
-  const itemsArr = ["حديد مشكل", "حديد 10", "حديد 8", "اسمنت", "اسمنت ابيض اردني", "اسمنت ابيض اجنبي",
-  "شيد", "سلك ناعم", "سلك مجدول", "مسامير عادي", "مسامير باطون", "اسافين", "ستوك اردتي",
-  "ستوك اجنبي", "مثلث صغير", "مربع", "مثلث", "60x15", "50x15", "50x18", "48x15", "45x15", "40x18", "40x15", "30x18", 
-  "30x15"]
-  for (let i in itemsArr){
-    $("#item").append(
-      `<option value=${parseInt(i, 10) + 1}>${itemsArr[i]}</option>`
-    )
-  }
-
-  $.getJSON('/getClients', null, (data) => {
-    for (let client in data.clientArr){
-      $("#clientName").append(
-        `<option value=${parseInt(client, 10) + 1}>${data.clientArr[client]}</option>`
+  $.getJSON('/getTypes', null, types => {
+    for (let type of types){
+      $("#item").append(
+        `<option value=${type.id}>${type.name}</option>`
       )
     }
   })
+
+  $.getJSON('/getClients', null, clients => {
+    for (let client of clients){
+      if (client.id === 1) continue
+      else if (client.id < 0) {
+        alert('حدث خطأ. الرجاء اعادة التشغيل')
+        break
+      }
+      $("#clientName").append(
+        `<option value=${client.id}>${client.name}</option>`
+      )
+    }
+    lengths.clients = clients.length
+  })
+
+  $("#clientId").change(function() {
+    $('#clientName option:selected').removeAttr('selected')
+    if (this.value > 1 && this.value <= lengths.clients) {
+      $(`#clientName option[value=${this.value}]`).attr('selected', 'selected')
+    } else {
+      $('#stdoption1').attr('selected', 'selected')
+      this.value = ''
+      alert('لا يوجد عميل بهذا الرقم')
+    }
+  })
   
-  $('#clientName').on('change', function (e) {
-    const optionSelected = $("option:selected", this)
-    const valueSelected = this.value
-    $("#clientId").val(valueSelected)
+  $('#clientName').on('change', function() {
+    $("#clientId").val(this.value)
   })
 
   $('#weight').on('change', () => {

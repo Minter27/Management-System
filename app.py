@@ -1,8 +1,6 @@
 # Header files (Import all needed libraries)
 from flask import Flask, render_template, redirect, request, jsonify, make_response
-from tempfile import mkdtemp
-from werkzeug.exceptions import default_exceptions
-from werkzeug.security import check_password_hash, generate_password_hash
+from logging import FileHandler, WARNING
 
 from datetime import datetime
 from sqlite3 import connect
@@ -28,6 +26,10 @@ def after_request(response):
   response.headers["Pragma"] = "no-cache"
   return response
 
+# Error logging
+file_handler = FileHandler('error.txt')
+file_handler.setLevel(WARNING)
+app.logger.addHandler(file_handler)
 
 @app.route("/")
 def index():
@@ -274,7 +276,7 @@ def repayDebt():
     db.commit()
 
     clientCash = db.execute("SELECT client_balance FROM clients WHERE clientId = (?)", [clientId]).fetchone()[0]
-    clientCash += amount
+    clientCash -= amount
     db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = (?)", [clientCash, clientId])
     db.commit()
 
@@ -298,10 +300,12 @@ def cash():
   transactions = []
   query = db.execute("SELECT * FROM cash ORDER BY transactionId DESC").fetchall()
   for record in query:
+    clientNameQuery = db.execute("SELECT client_name FROM clients WHERE clientId = (?)", [record[1]]).fetchone()
     stats['total'] += record[2]
     transactions.append({
       'id': record[0],
       'clientId': record[1],
+      'clientName': clientNameQuery[0] if clientNameQuery else "",
       'amount': record[2],
       'descreption': str("حركة " + str(record[4]) +  " بيد عميل رقم " + "(" +str(record[1]) + ")" + " حركة رقم " + "(" + str(record[0]) + ")"),
       'type': record[4],
@@ -616,15 +620,33 @@ def editTransactionForm():
       cashBlanace += (initial['paid'] - paid)
       db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = 1", [cashBlanace])
       db.commit()
-    return next
+    return "/" + next
   else:
     return render_template("editForm.html")
 
 # Info gathering routes
 @app.route("/getClients", methods=["GET"])
 def getClientId():
-  query = db.execute("SELECT client_name FROM clients ORDER BY clientId").fetchall()
-  return jsonify( { 'clientArr': list(query) } )
+  clients = []
+  query = db.execute("SELECT clientId, client_name FROM clients ORDER BY clientId").fetchall()
+  print(query)
+  for record in query:
+    clients.append({
+      'id': record[0],
+      'name': record[1]
+    })
+  return jsonify(clients)
+
+@app.route("/getTypes", methods=["GET"])
+def getTypes():
+  types = []
+  query = db.execute("SELECT * FROM inventory ORDER BY itemId").fetchall()
+  for record in query:
+    types.append({
+      'id': record[0],
+      'name': record[1]
+    })
+  return jsonify(types)
 
 @app.route("/getTransactionsByType", methods=["GET"])
 def getTransactionsByType():
