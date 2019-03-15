@@ -288,7 +288,7 @@ def repayDebt():
     db.commit()
 
     clientCash = db.execute("SELECT client_balance FROM clients WHERE clientId = (?)", [clientId]).fetchone()[0]
-    clientCash -= amount
+    clientCash += amount
     db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = (?)", [clientCash, clientId])
     db.commit()
 
