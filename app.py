@@ -1,6 +1,7 @@
 # Header files (Import all needed libraries)
 from flask import Flask, render_template, redirect, request, jsonify, make_response
 from logging import FileHandler, WARNING
+
 from datetime import datetime
 from sqlite3 import connect
 
