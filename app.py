@@ -1,9 +1,6 @@
 # Header files (Import all needed libraries)
-from flask import Flask, render_template, redirect, request, session, jsonify, make_response
-from flask_session import Session
-from tempfile import mkdtemp
+from flask import Flask, render_template, redirect, request, jsonify, make_response
 from werkzeug.exceptions import default_exceptions
-from werkzeug.security import check_password_hash, generate_password_hash
 
 from datetime import datetime
 from sqlite3 import connect
@@ -29,12 +26,6 @@ def after_request(response):
   response.headers["Pragma"] = "no-cache"
   return response
 
-
-# Configure session to use filesystem (instead of signed cookies)
-app.config["SESSION_FILE_DIR"] = mkdtemp()
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
 
 @app.route("/")
 def index():
