@@ -1,3 +1,5 @@
+# pylint: disable= no-member
+
 # Header files (Import all needed libraries)
 from flask import Flask, render_template, redirect, request, jsonify, make_response
 from logging import FileHandler, WARNING
