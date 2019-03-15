@@ -1,7 +1,6 @@
 # Header files (Import all needed libraries)
 from flask import Flask, render_template, redirect, request, jsonify, make_response
-from werkzeug.exceptions import default_exceptions
-
+from logging import FileHandler, WARNING
 from datetime import datetime
 from sqlite3 import connect
 
@@ -26,6 +25,10 @@ def after_request(response):
   response.headers["Pragma"] = "no-cache"
   return response
 
+# Error logging
+file_handler = FileHandler('error.txt')
+file_handler.setLevel(WARNING)
+app.logger.addHandler(file_handler)
 
 @app.route("/")
 def index():
@@ -272,7 +275,7 @@ def repayDebt():
     db.commit()
 
     clientCash = db.execute("SELECT client_balance FROM clients WHERE clientId = (?)", [clientId]).fetchone()[0]
-    clientCash += amount
+    clientCash -= amount
     db.execute("UPDATE clients SET client_balance = (?) WHERE clientId = (?)", [clientCash, clientId])
     db.commit()
 
