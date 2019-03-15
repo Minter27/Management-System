@@ -1,6 +1,8 @@
 /node_modules
 /__pycache__
+/static/bootstrap
 /websiteWORKING.db
 /yarn.lock
 /test.*
+/error.txt
 **.DS_Store
