@@ -122,13 +122,14 @@ def transactionLog():
     query = db.execute("SELECT * FROM transactions WHERE date >= (?) AND date <= (?) ORDER BY transactionId DESC",
       [dateStart, dateEnd]).fetchall()
     if not query:
-      return "لا يوجد حركات بهذه الفترة"
+      return jsonify({'error': "لا يوجد حركات بهذه الفترة"})
     for record in query:
-      print(record)
+      cleintNameQuery = db.execute("SELECT client_name FROM clients WHERE clientId = (?)", [record[1]]).fetchone()
       itemNameQuery = db.execute("SELECT item_name FROM inventory WHERE itemId = (?)", [record[2]]).fetchone()
       transactions.append({
         'transactionId': record[0],
         'clientId': record[1],
+        'clientName': cleintNameQuery[0] if cleintNameQuery else "",
         'itemName': itemNameQuery[0] if itemNameQuery else "",
         'weight': record[3],
         'descreption': record[4],
