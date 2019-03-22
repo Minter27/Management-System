@@ -14,6 +14,7 @@
 
     <link href="/static/css/layout.css" rel="stylesheet">
 
+    <!-- Error logging -->
     <script>
       window.onerror = e => fetch(`/onJSError/${e}?path=${String(window.location.href)}`, { method: 'GET' })
     </script>

@@ -13,6 +13,7 @@ $(document).ready(() => {
         `<tr>
           <th scope="row">${ transaction.id }</th>
           <td>${ transaction.clientId }</td>
+          <td>${ transaction.clientName }</td>
           <td>${ transaction.amount }</td>
           <td>${ transaction.descreption }</td>
           <td>${ transaction.type }</td>

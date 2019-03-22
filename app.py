@@ -37,7 +37,6 @@ app.logger.addHandler(file_handler)
 def index():
   return render_template("index.html")
 
-
 @app.route("/transaction", methods=["GET", "POST"])
 def transaction():
   if request.method == "POST":
@@ -141,7 +140,6 @@ def transactionLog():
       })
       print(transactions)
     return jsonify({ 'transactions': transactions })
-
 
 @app.route("/clients", methods=["GET", "POST"])
 def clients():
@@ -261,7 +259,6 @@ def addItems():
     transactionId = db.execute("SELECT transactionId FROM transactions ORDER BY transactionId DESC LIMIT 1").fetchone()[0]
     return render_template("addItems.html", transactionId=(transactionId+1))
 
-
 @app.route('/repayDebt', methods=["GET", "POST"])
 def repayDebt():
   if request.method == "POST":
@@ -302,7 +299,6 @@ def repayDebt():
     transactionId = db.execute("SELECT transactionId FROM transactions ORDER BY transactionId DESC LIMIT 1").fetchone()[0]
     return render_template('repayDebt.html', transactionId=(transactionId+1))
 
-
 @app.route("/cash", methods=["GET"])
 def cash():
   stats = {
@@ -324,7 +320,6 @@ def cash():
       'date': record[5]
     })
   return render_template('cash.html', transactions=transactions, stats=stats)
-
 
 @app.route("/expense", methods=["GET", "POST"])
 def expense():
@@ -665,9 +660,11 @@ def getTransactionsByType():
   transactions = []
   query = db.execute("SELECT * FROM cash WHERE typeId = (?)", [request.args.get('typeId')]).fetchall()
   for record in query:
+    clientNameQuery = db.execute("SELECT client_name FROM clients WHERE clientId = (?)", [record[1]]).fetchone()
     transactions.append({
       'id': record[0],
       'clientId': record[1],
+      'clientName': clientNameQuery[0] if clientNameQuery else "",
       'amount': record[2],
       'descreption': str("حركة " + str(record[4]) +  " بيد عميل رقم " + "(" +str(record[1]) + ")" + " حركة رقم " + "(" + str(record[0]) + ")"),
       'type': record[4],
