@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>كشف المستودع</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.css', _external=True) }}" rel="stylesheet">
+</head>
+<body>
+    <p style="text-align:center; font-size: 26px; margin-bottom: 3%">كشف المستودع</p>
+    <div class="center-table">
+      <table class="table table-bordered">
+        <thead class="text-right">
+          <tr>
+            <th scope="col">رقم الصنف</th>
+            <th scope="col">الصنف</th>
+            <th scope="col">الموجودات</th>
+          </tr>
+        </thead>
+        <tbody class="text-right">
+          {% for item in inventory %}
+            <tr>
+              <th scope="row">{{ item.id }}</th>
+              <td>{{ item.name }}</td>
+              <td>{{ item.stock }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+</body>
+</html>
